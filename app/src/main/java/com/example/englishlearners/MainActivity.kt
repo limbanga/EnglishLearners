@@ -1,52 +1,51 @@
 package com.example.englishlearners
 
-import android.content.ContentValues.TAG
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-
-const val BASE_URL = ""
-
 class MainActivity : AppCompatActivity() {
+
+    lateinit var preferences : SharedPreferences
+    private lateinit var textView: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val btnLogin = findViewById<Button>(R.id.btn_login)
+        textView = findViewById(R.id.textView)
 
+        preferences = this.getSharedPreferences("auth_save", Context.MODE_PRIVATE)
+        textView.text = preferences.getString("access_token", "empty")
 
-        btnLogin.setOnClickListener {
-            Toast.makeText(this, "Clicked", Toast.LENGTH_LONG).show()
-            postLogin()
-        }
+        val accessToken = preferences.getString("access_token", "empty") ?: return
 
+        val topicService = RetrofitService.getTopicApi(accessToken)
+        topicService.getAll().enqueue(object : Callback<List<Topic>> {
+            override fun onResponse(call: Call<List<Topic>>, response: Response<List<Topic>>) {
 
-    }
-    private fun postLogin() {
-        val apiService = RetrofitService.api
-        val EditTextusername = findViewById<EditText>(R.id.edit_text_email)
-        val EditTextpassword = findViewById<EditText>(R.id.edit_text_password)
-
-        val username = EditTextusername.text.toString()
-        val password = EditTextpassword.text.toString()
-
-        val loginData = LoginForm(username, password)
-
-        apiService.login(loginData).enqueue(object : Callback<Token?> {
-            override fun onResponse(call: Call<Token?>, response: Response<Token?>) {
-                Log.d(TAG, "my Message" + response.body()?.access)
+                if (response.isSuccessful) {
+                    Toast.makeText(this@MainActivity , "Get topic ok", Toast.LENGTH_LONG).show()
+                    val topics = response.body()
+                    if (topics != null) {
+                        for (topic in topics) {
+                            Log.d("check get topic", "title ${topic.title}")
+                        }
+                    }
+                } else {
+                    Toast.makeText(this@MainActivity , "HTTP error code" + response.code(), Toast.LENGTH_LONG).show()
+                }
             }
 
-            override fun onFailure(call: Call<Token?>, t: Throwable) {
-                Log.e(TAG, "Error" + t.message)
+            override fun onFailure(call: Call<List<Topic>>, t: Throwable) {
+                Toast.makeText(this@MainActivity , "Can't get topic", Toast.LENGTH_LONG).show()
                 t.printStackTrace()
             }
         })
