@@ -1,4 +1,4 @@
-package com.example.englishlearners
+package com.example.englishlearners.Form
 
 class LoginForm (
     val username: String,

@@ -1,7 +1,7 @@
-package com.example.englishlearners
+package com.example.englishlearners.Api
 
+import com.example.englishlearners.Model.Topic
 import retrofit2.Call
-import retrofit2.http.Body
 import retrofit2.http.GET
 
 interface TopicApi {

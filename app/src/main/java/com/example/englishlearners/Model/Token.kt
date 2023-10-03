@@ -1,4 +1,4 @@
-package com.example.englishlearners
+package com.example.englishlearners.Model
 
 class Token (
     val refresh: String,

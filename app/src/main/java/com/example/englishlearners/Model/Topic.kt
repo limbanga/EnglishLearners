@@ -1,4 +1,4 @@
-package com.example.englishlearners
+package com.example.englishlearners.Model
 import com.google.gson.annotations.SerializedName
 
 class Topic {
