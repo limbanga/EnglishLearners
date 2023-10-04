@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import com.bumptech.glide.Glide
+import com.example.englishlearners.Api.RetrofitService
 import com.example.englishlearners.Model.Topic
 import com.example.englishlearners.R
 
@@ -48,7 +50,10 @@ class TopicAdapter(var context: Context, var topicList: ArrayList<Topic>)
             viewHolder = convertView.tag as ViewHolder
         }
 
+
         var topic: Topic = getItem(position) as Topic
+        val url = "${RetrofitService.BASE_URL}${topic.image}";
+        Glide.with(viewHolder.image).load(url).into(viewHolder.image)
         viewHolder.textViewTitle.text = topic.title
         return view as View 
     }
