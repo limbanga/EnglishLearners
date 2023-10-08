@@ -5,6 +5,8 @@ import retrofit2.Call
 import retrofit2.http.GET
 
 interface TopicApi {
-    @GET("api/topics/")
-    fun getAll(): Call<List<Topic>>
+    @GET("api/topic")
+    fun getAll(): Call<ArrayList<Topic>>
+//    @GET("api/topic/string")
+//    fun get(id : String): Call<Topic>
 }

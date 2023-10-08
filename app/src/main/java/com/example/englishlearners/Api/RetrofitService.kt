@@ -5,8 +5,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitService {
-    const val BASE_URL = "http://10.0.2.2:8000"
-
+    private const val BASE_URL = "http://10.0.2.2:8000"
+//    private const val BASE_URL =  "http://192.168.137.1:8000"
     private fun retrofitService(): Retrofit {
 
         return Retrofit.Builder()
@@ -14,6 +14,7 @@ object RetrofitService {
             .baseUrl(BASE_URL)
             .build()
     }
+
     private fun retrofitService(accessToken: String? = null): Retrofit {
 
         val client = OkHttpClient.Builder().addInterceptor { chain ->
@@ -42,4 +43,14 @@ object RetrofitService {
         }
         return topicApi as TopicApi
     }
+
+    private var vocabularyApi : VocabularyApi? = null
+    fun getVocabularyApi(accessToken: String) : VocabularyApi {
+        if (vocabularyApi == null) {
+            vocabularyApi = retrofitService(accessToken).create(VocabularyApi::class.java)
+        }
+        return vocabularyApi as VocabularyApi
+    }
+
+
 }

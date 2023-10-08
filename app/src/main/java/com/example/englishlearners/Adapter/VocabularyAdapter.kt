@@ -5,32 +5,29 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import android.widget.ImageView
 import android.widget.TextView
-import com.bumptech.glide.Glide
-import com.example.englishlearners.Api.RetrofitService
-import com.example.englishlearners.Model.Topic
+import com.example.englishlearners.Model.Vocabulary
 import com.example.englishlearners.R
 
-class TopicAdapter(var context: Context, var topicList: ArrayList<Topic>)
+class VocabularyAdapter(var context: Context, var vocabularyList: ArrayList<Vocabulary>)
     : BaseAdapter() {
 
     class ViewHolder(row: View) {
-        var textViewTitle : TextView
-        var image : ImageView
+        var textViewTerm : TextView
+        var textViewDefintion : TextView
 
         init {
-            textViewTitle = row.findViewById(R.id.text_view_topic_title)
-            image = row.findViewById(R.id.image_topic)
+            textViewTerm = row.findViewById(R.id.text_view_term)
+            textViewDefintion = row.findViewById(R.id.text_view_definition)
         }
     }
 
     override fun getCount(): Int {
-         return topicList.size
+         return vocabularyList.size
     }
 
     override fun getItem(position: Int): Any {
-        return topicList.get(position)
+        return vocabularyList[position]
     }
 
     override fun getItemId(p0: Int): Long {
@@ -42,7 +39,7 @@ class TopicAdapter(var context: Context, var topicList: ArrayList<Topic>)
         var viewHolder: ViewHolder
         if (convertView == null) {
             var layoutInflater : LayoutInflater = LayoutInflater.from(context)
-            view = layoutInflater.inflate(R.layout.listviewitem_topic, null)
+            view = layoutInflater.inflate(R.layout.list_view_item_vocabulary, null)
             viewHolder = ViewHolder(view)
             view.tag = viewHolder
         } else {
@@ -51,10 +48,9 @@ class TopicAdapter(var context: Context, var topicList: ArrayList<Topic>)
         }
 
 
-        var topic: Topic = getItem(position) as Topic
-        val url = topic.image;
-        Glide.with(viewHolder.image).load(url).into(viewHolder.image)
-        viewHolder.textViewTitle.text = topic.title
-        return view as View 
+        var vocabulary: Vocabulary = getItem(position) as Vocabulary
+        viewHolder.textViewTerm.text = vocabulary.term
+        viewHolder.textViewDefintion.text = vocabulary.definition
+        return view as View
     }
 }

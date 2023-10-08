@@ -3,11 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Fragment.HomeFragment">
+    tools:context=".TopicDetailFragment">
 
     <ListView
-        android:id="@+id/list_item_topic"
+        android:id="@+id/list_item_vocabulary"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="match_parent"/>
 
 </FrameLayout>
