@@ -71,7 +71,7 @@
             android:layout_marginVertical="5dp"
             android:textColor="@color/black"
             android:hint="Re-password"
-            android:drawableLeft="@drawable/baseline_lock_24"
+            android:drawableLeft="@drawable/baseline_confirmation_number_24"
             android:drawablePadding="7dp"
             android:minHeight="48dp" />
 
