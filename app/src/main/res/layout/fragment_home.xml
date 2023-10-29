@@ -6,6 +6,7 @@
     tools:context=".Fragment.HomeFragment">
 
     <ListView
+        android:background="@color/white"
         android:id="@+id/list_item_topic"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
