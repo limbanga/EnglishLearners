@@ -23,7 +23,7 @@ import retrofit2.Response
 
 class LoginActivity : AppCompatActivity() {
 
-    lateinit var preferences : SharedPreferences
+    private lateinit var preferences : SharedPreferences
     private lateinit var btnLogin : Button
     private lateinit var textViewToSignUpScreen : TextView
     private lateinit var editTextusername : EditText
