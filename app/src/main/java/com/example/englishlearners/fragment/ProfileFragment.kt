@@ -1,4 +1,4 @@
-package com.example.englishlearners.Fragment
+package com.example.englishlearners.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,13 +8,7 @@ import androidx.fragment.app.Fragment
 import com.example.englishlearners.R
 
 
-class Profile : Fragment() {
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
+class ProfileFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

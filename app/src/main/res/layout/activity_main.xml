@@ -19,13 +19,13 @@
         android:id="@+id/bottomNavigationView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/teal_200"
+        android:background="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:itemTextColor="@color/nav_item_color"
-        app:itemIconTint="@color/nav_item_color"
+        app:itemTextColor="@color/color_bottom_menu_item"
+        app:itemIconTint="@color/color_bottom_menu_item"
+        app:labelVisibilityMode="labeled"
         app:menu="@menu/menu_bottom" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

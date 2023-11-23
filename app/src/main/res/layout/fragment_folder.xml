@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    tools:context=".FolderFragment">
 
     <TextView
-        android:id="@+id/text_view_term"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="32sp"
-        android:text="Term"
-        android:textColor="@color/black"/>
+        android:textColor="@color/black"
+        android:text="My Folders" />
 
-    <TextView
-        android:id="@+id/text_view_definition"
+    <LinearLayout
+        android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="32sp"
-        android:text="Definition"
-        android:textColor="@color/black"/>
+        android:orientation="vertical"/>
 
 </LinearLayout>
