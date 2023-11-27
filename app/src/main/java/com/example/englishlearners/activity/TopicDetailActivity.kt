@@ -1,17 +1,21 @@
 package com.example.englishlearners.activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
+import com.example.englishlearners.FlashCardActivity
+import com.example.englishlearners.MultipleChoiceActivity
 import com.example.englishlearners.R
 
 class TopicDetailActivity : AppCompatActivity() {
 
     private lateinit var linearLayout: LinearLayout
     private lateinit var flashCard: CardView
+    private lateinit var multipleChoice : CardView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,9 +23,18 @@ class TopicDetailActivity : AppCompatActivity() {
 
         linearLayout = findViewById(R.id.card_list)
         flashCard = findViewById(R.id.flash_card)
+        multipleChoice = findViewById(R.id.multiple_choice);
 
         flashCard.setOnClickListener {
-            Toast.makeText(this@TopicDetailActivity, "asfahksf", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@TopicDetailActivity, "open flashcard", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this@TopicDetailActivity, FlashCardActivity::class.java)
+            startActivity(intent)
+        }
+
+        multipleChoice.setOnClickListener{
+            Toast.makeText(this@TopicDetailActivity, "open multiple choice", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this@TopicDetailActivity, MultipleChoiceActivity::class.java)
+            startActivity(intent)
         }
 
         loadData()
