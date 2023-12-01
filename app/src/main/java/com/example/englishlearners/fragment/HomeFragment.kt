@@ -9,6 +9,8 @@ import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import com.example.englishlearners.R
 import com.example.englishlearners.activity.TopicDetailActivity
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 
 
 class HomeFragment : Fragment() {
@@ -26,6 +28,11 @@ class HomeFragment : Fragment() {
         val rootView = requireView()
 
         linearLayout = rootView.findViewById(R.id.list)
+
+        val database = Firebase.database
+        val myRef = database.getReference("message")
+
+        myRef.setValue("Hello, World!")
         loadData();
     }
 
