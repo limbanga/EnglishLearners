@@ -1,6 +1,7 @@
 package com.example.englishlearners.activity
 
 import android.app.Dialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
+import com.example.englishlearners.ChangeTopicActivity
 import com.example.englishlearners.R
 import com.example.englishlearners.fragment.HomeFragment
 import com.example.englishlearners.fragment.LibraryFragment
@@ -50,6 +52,7 @@ class MainActivity : AppCompatActivity() {
         val addFolder: TextView = bottomSheetView.findViewById(R.id.add_folder)
         val addTopic: TextView = bottomSheetView.findViewById(R.id.add_topic)
 
+        // add folder
         addFolder.setOnClickListener() {
             Toast.makeText(this, "add folder clicked", Toast.LENGTH_SHORT).show()
 
@@ -58,7 +61,8 @@ class MainActivity : AppCompatActivity() {
                 layoutInflater.inflate(R.layout.add_folder_dialog_layout, null)
             customDialog.setContentView(addFolderDialogView)
             // set width and height
-            customDialog.window!!.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
+            customDialog.window!!.setLayout(
+                ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT)
 
             // get dialog view
@@ -72,6 +76,8 @@ class MainActivity : AppCompatActivity() {
 
         addTopic.setOnClickListener() {
             Toast.makeText(this, "add topic clicked", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this@MainActivity, ChangeTopicActivity::class.java)
+            startActivity(intent)
         }
         bottomSheetDialog.show()
     }
