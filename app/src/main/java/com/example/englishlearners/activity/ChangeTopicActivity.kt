@@ -39,6 +39,7 @@ class ChangeTopicActivity : AppCompatActivity() {
             val newRef = myRef.push()
             val data = mapOf(
                 "title" to titleEditText.text.toString(),
+                AppConst.KEY_VOCABULARY to list
             )
             newRef.setValue(data)
             { databaseError, _ ->
