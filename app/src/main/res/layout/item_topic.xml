@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_marginTop="10dp"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="5dp"
-    app:cardElevation="6dp"
-    app:cardCornerRadius="6dp">
+    android:layout_marginVertical="10dp"
+    app:cardCornerRadius="6dp"
+    app:cardElevation="6dp">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="10dp">
 
         <TextView
+            android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Trường học"
@@ -25,33 +26,33 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginVertical="10dp"
+            android:background="@drawable/background_bagde"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="5dp"
             android:text="15 thuật ngữ"
             android:textColor="@color/black"
-            android:paddingVertical="5dp"
-            android:paddingHorizontal="10dp"
-            android:textSize="14sp"
-            android:background="@drawable/background_bagde"
-            android:layout_marginVertical="10dp"/>
+            android:textSize="14sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
             android:layout_marginVertical="10dp"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <de.hdodenhof.circleimageview.CircleImageView
-                android:src="@color/black"
                 android:layout_width="30dp"
-                android:layout_height="30dp"/>
+                android:layout_height="30dp"
+                android:src="@color/black" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
-                android:textSize="18sp"
+                android:text="ThyNguyen1508"
                 android:textColor="@color/black"
-                android:text="ThyNguyen1508"/>
+                android:textSize="18sp" />
 
         </LinearLayout>
     </LinearLayout>
