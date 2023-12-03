@@ -6,11 +6,12 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
+import com.example.englishlearners.AppConst
 import com.example.englishlearners.ChangeTopicActivity
 import com.example.englishlearners.R
 import com.example.englishlearners.fragment.HomeFragment
@@ -18,6 +19,8 @@ import com.example.englishlearners.fragment.LibraryFragment
 import com.example.englishlearners.fragment.ProfileFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 
 
 class MainActivity : AppCompatActivity() {
@@ -54,28 +57,54 @@ class MainActivity : AppCompatActivity() {
 
         // add folder
         addFolder.setOnClickListener() {
-            Toast.makeText(this, "add folder clicked", Toast.LENGTH_SHORT).show()
+            // close bottomsheetdialog
+            bottomSheetDialog.dismiss()
 
             val customDialog = Dialog(this)
-            val addFolderDialogView: View =
-                layoutInflater.inflate(R.layout.add_folder_dialog_layout, null)
-            customDialog.setContentView(addFolderDialogView)
+            val view: View = layoutInflater.inflate(R.layout.add_folder_dialog_layout, null)
+            customDialog.setContentView(view)
             // set width and height
             customDialog.window!!.setLayout(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT)
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
 
             // get dialog view
-            val cancelButton: Button = addFolderDialogView.findViewById(R.id.cancel_button)
+            val cancelButton: Button = view.findViewById(R.id.cancel_button)
+            val okButton: Button = view.findViewById(R.id.ok_btn)
+            val nameEditText: EditText = view.findViewById(R.id.folder_name_edit_text)
+            val descEditText: EditText = view.findViewById(R.id.folder_desc_edit_text)
 
             cancelButton.setOnClickListener {
                 customDialog.dismiss()
             }
+
+            okButton.setOnClickListener{
+                val database = Firebase.database
+                //
+                val myRef = database.getReference(AppConst.KEY_FOLDER)
+                val newRef = myRef.push()
+                val data = mapOf(
+                    "name" to nameEditText.text.toString(),
+                    "desc" to descEditText.text.toString(),
+                )
+                newRef.setValue(data)
+                { databaseError, _ ->
+                    if (databaseError != null) {
+                        Toast.makeText(this, "Some thing went wrong", Toast.LENGTH_LONG).show()
+                    } else {
+                        Toast.makeText(this, "Folder created successfully!", Toast.LENGTH_LONG).show()
+                        customDialog.dismiss()
+                    }
+                }
+            }
+
             customDialog.show()
         }
 
+        // add topic
         addTopic.setOnClickListener() {
-            Toast.makeText(this, "add topic clicked", Toast.LENGTH_SHORT).show()
+            bottomSheetDialog.dismiss()
             val intent = Intent(this@MainActivity, ChangeTopicActivity::class.java)
             startActivity(intent)
         }
