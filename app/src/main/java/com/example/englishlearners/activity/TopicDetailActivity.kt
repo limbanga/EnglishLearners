@@ -116,7 +116,7 @@ class TopicDetailActivity : AppCompatActivity() {
                 for (snapshot in dataSnapshot.children) {
 
                     val itemValue = snapshot.getValue(Vocabulary::class.java)
-                    val itemKey =snapshot.key.toString()
+                    val itemKey = snapshot.key.toString()
 
                     if (itemValue != null) {
                         itemValue.id = itemKey
@@ -146,15 +146,13 @@ class TopicDetailActivity : AppCompatActivity() {
     private fun initCard(vocabulary: Vocabulary) {
         val view: View = layoutInflater.inflate(R.layout.item_vocabulary_view, linearLayout, false)
 
-        // val titleTextView: TextView = view.findViewById(R.id.title)
+        val termTextView: TextView = view.findViewById(R.id.term_text_view)
+        val definitionTextView: TextView = view.findViewById(R.id.definition_text_view)
 
         // Log.d(AppConst.DEBUG_TAG, "title"+ topic.title)
-        //  titleTextView.text = topic.title
 
-//        view.setOnClickListener {
-//            val intent = Intent(requireContext(), TopicDetailActivity::class.java)
-//            requireContext().startActivity(intent)
-//        }
+        termTextView.text = vocabulary.term
+        definitionTextView.text = vocabulary.definition
 
         linearLayout.addView(view)
     }
