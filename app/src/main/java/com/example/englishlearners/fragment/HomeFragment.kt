@@ -44,12 +44,10 @@ class HomeFragment : Fragment() {
 
     private fun loadData() {
         val myRef = database.getReference(AppConst.KEY_TOPIC)
-        Log.d(AppConst.DEBUG_TAG, "loadData called")
 
         myRef.addValueEventListener(object : ValueEventListener {
 
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                Log.d(AppConst.DEBUG_TAG, "onDataChange called")
                 // remove all view before add
                 linearLayout.removeAllViews()
 
@@ -59,7 +57,6 @@ class HomeFragment : Fragment() {
                     val itemKey =snapshot.key.toString()
 
                     if (itemValue != null) {
-                        Log.d(AppConst.DEBUG_TAG, "id123"+itemValue.title)
                         val topicWithId = Topic(itemKey, itemValue.title)
                         initCard(topicWithId)
                     } else {
@@ -86,6 +83,9 @@ class HomeFragment : Fragment() {
 
         view.setOnClickListener {
             val intent = Intent(requireContext(), TopicDetailActivity::class.java)
+            // truyền topic id
+            val data = topic.id
+            intent.putExtra(TopicDetailActivity.KEY_TOPIC_ID, data)
             requireContext().startActivity(intent)
         }
 
