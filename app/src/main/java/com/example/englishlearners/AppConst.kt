@@ -6,5 +6,7 @@ class AppConst {
 
         const val KEY_TOPIC = "topics"
         const val KEY_FOLDER = "folders"
+        const val KEY_VOCABULARY = "vocabularies"
+
     }
 }

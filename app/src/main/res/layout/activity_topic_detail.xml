@@ -11,16 +11,49 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="10dp">
+        <!--Actionbar-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            android:paddingVertical="5dp">
+
+            <ImageView
+                android:id="@+id/back_btn"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/baseline_arrow_back_24" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_weight="1"
+                android:text=""
+                android:textColor="@color/black"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/edit_btn"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/baseline_edit_24" />
+
+        </LinearLayout>
 
         <!-- Tiêu đề -->
         <TextView
+            android:id="@+id/title_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="10dp"
+            android:paddingVertical="5dp"
             android:text="Đại dương"
             android:textColor="@color/black"
             android:textSize="32sp"
             android:textStyle="bold" />
+
 
         <!-- Tác giả + tt sơ lược -->
         <LinearLayout
@@ -44,11 +77,22 @@
 
         </LinearLayout>
 
+        <!--Mô tả-->
+        <TextView
+            android:id="@+id/desc_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="5dp"
+            android:text="Đây là mô tả về học phần này. Tối đa 200 chữ."
+            android:textColor="@color/grey"
+            android:textSize="16sp" />
+
         <!-- Thẻ ghi nhớ -->
         <androidx.cardview.widget.CardView
             android:id="@+id/flash_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="2dp"
             android:layout_marginTop="10dp"
             app:cardCornerRadius="6dp"
             app:cardElevation="6dp">
@@ -90,6 +134,7 @@
             android:id="@+id/multiple_choice"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="2dp"
             android:layout_marginTop="10dp"
             app:cardCornerRadius="6dp"
             app:cardElevation="6dp">
@@ -130,6 +175,7 @@
             android:id="@+id/type_word"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="2dp"
             android:layout_marginTop="10dp"
             app:cardCornerRadius="6dp"
             app:cardElevation="6dp">
@@ -166,21 +212,21 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="10dp"
+            android:text="Thẻ"
+            android:textColor="@color/black"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <!-- Danh sach thuat ngu-->
         <LinearLayout
             android:id="@+id/card_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="10dp"
-                android:text="Thẻ"
-                android:textColor="@color/black"
-                android:textSize="24sp" />
-
-        </LinearLayout>
+            android:orientation="vertical" />
 
     </LinearLayout>
 </ScrollView>
