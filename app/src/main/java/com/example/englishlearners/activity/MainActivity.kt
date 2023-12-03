@@ -13,9 +13,21 @@ import com.example.englishlearners.fragment.LibraryFragment
 import com.example.englishlearners.fragment.ProfileFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.firebase.auth.FirebaseAuth
 
 
 class MainActivity : AppCompatActivity() {
+
+    override fun onStart() {
+        super.onStart()
+        val mAuth = FirebaseAuth.getInstance()
+
+//        val currentUser = mAuth.currentUser
+//        if (currentUser == null) {
+//            val intent = Intent(this, LoginActivity::class.java)
+//            startActivity(intent)
+//        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -8,27 +8,29 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.englishlearners.R
+import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity : AppCompatActivity() {
 
-    private lateinit var btnLogin : Button
-    private lateinit var textViewToSignUpScreen : TextView
-    private lateinit var editTextusername : EditText
-    private lateinit var editTextpassword : EditText
+    private val mAuth = FirebaseAuth.getInstance()
+
+    private lateinit var btnLogin: Button
+    private lateinit var textViewToSignUpScreen: TextView
+    private lateinit var userNameRditText: EditText
+    private lateinit var passwordEditText: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-
+        // map view
         btnLogin = findViewById(R.id.btn_login)
-        editTextusername = findViewById(R.id.edit_text_email)
-        editTextpassword = findViewById(R.id.edit_text_password)
+        userNameRditText = findViewById(R.id.edit_text_email)
+        passwordEditText = findViewById(R.id.edit_text_password)
         textViewToSignUpScreen = findViewById(R.id.to_sign_up_screen)
-
+        // set event
         btnLogin.setOnClickListener {
             Toast.makeText(this, "Login button clicked", Toast.LENGTH_LONG).show()
-            val intent = Intent(this@LoginActivity, MainActivity::class.java)
-            startActivity(intent)
+            signIn(userNameRditText.text.toString(), passwordEditText.text.toString())
         }
 
         textViewToSignUpScreen.setOnClickListener {
@@ -37,5 +39,18 @@ class LoginActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
+    }
+
+    private fun signIn(email: String, password: String) {
+        mAuth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(this, "Đăng nhập thành công", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                    startActivity(intent)
+                } else {
+                    Toast.makeText(this, "Đăng nhập thất bại: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
     }
 }
