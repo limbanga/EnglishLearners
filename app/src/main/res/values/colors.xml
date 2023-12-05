@@ -14,5 +14,6 @@
 
     <color name="primary">@color/purple_500</color>
     <color name="light_grey">#97908F</color>
+    <color name="dark_grey">#494545</color>
 
 </resources>

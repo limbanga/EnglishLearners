@@ -1,5 +1,6 @@
 package com.example.englishlearners.dialog
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.view.View
@@ -12,6 +13,7 @@ import com.example.englishlearners.R
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 
+@SuppressLint("InflateParams")
 class FolderDialog(context : Context): Dialog(context) {
     init {
         val view: View = layoutInflater.inflate(R.layout.add_folder_dialog_layout, null)

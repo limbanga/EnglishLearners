@@ -1,5 +1,6 @@
 package com.example.englishlearners.activity
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -51,6 +52,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("InflateParams")
     private fun openBottomDialog() {
         val bottomSheetDialog = BottomSheetDialog(this)
         val view: View = layoutInflater.inflate(R.layout.bottom_dialog_layout, null)

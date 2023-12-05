@@ -1,24 +1,28 @@
 package com.example.englishlearners.activity
 
+import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.View
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.view.ViewGroup
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import com.example.englishlearners.AppConst
 import com.example.englishlearners.R
 import com.example.englishlearners.model.Topic
 import com.example.englishlearners.model.Vocabulary
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import java.util.*
+
 
 class TopicDetailActivity : AppCompatActivity() {
     companion object {
@@ -35,7 +39,7 @@ class TopicDetailActivity : AppCompatActivity() {
     private lateinit var multipleChoice: CardView
     private lateinit var typeWord: CardView
     private lateinit var backButton: ImageView
-    private lateinit var editButton: ImageView
+    private lateinit var openMenuButton: ImageView
     private lateinit var titleTextView: TextView
     private lateinit var descTextView: TextView
 
@@ -45,7 +49,7 @@ class TopicDetailActivity : AppCompatActivity() {
 
         val receivedIntent = intent
         if (receivedIntent == null || !receivedIntent.hasExtra(KEY_TOPIC_ID)) {
-            Toast.makeText(this@TopicDetailActivity, "No topic id pass.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "No topic id pass.", Toast.LENGTH_LONG).show()
             finish()
         }
         topicId = receivedIntent.getStringExtra(KEY_TOPIC_ID) as String
@@ -55,35 +59,32 @@ class TopicDetailActivity : AppCompatActivity() {
         multipleChoice = findViewById(R.id.multiple_choice)
         typeWord = findViewById(R.id.type_word)
         backButton = findViewById(R.id.back_btn)
-        editButton = findViewById(R.id.edit_btn)
+        openMenuButton = findViewById(R.id.open_menu_btn)
         titleTextView = findViewById(R.id.title_text_view)
         descTextView = findViewById(R.id.desc_text_view)
 
         // set event
         flashCard.setOnClickListener {
-            Toast.makeText(this@TopicDetailActivity, "open flashcard", Toast.LENGTH_SHORT).show()
-            val intent = Intent(this@TopicDetailActivity, FlashCardActivity::class.java)
+            Toast.makeText(this, "open flashcard", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, FlashCardActivity::class.java)
             startActivity(intent)
         }
 
         multipleChoice.setOnClickListener {
-            Toast.makeText(this@TopicDetailActivity, "open multiple choice", Toast.LENGTH_SHORT)
+            Toast.makeText(this, "open multiple choice", Toast.LENGTH_SHORT)
                 .show()
-            val intent = Intent(this@TopicDetailActivity, MultipleChoiceActivity::class.java)
+            val intent = Intent(this, MultipleChoiceActivity::class.java)
             startActivity(intent)
         }
 
         typeWord.setOnClickListener {
-            Toast.makeText(this@TopicDetailActivity, "open type word", Toast.LENGTH_SHORT).show()
-            val intent = Intent(this@TopicDetailActivity, TypeWordActivity::class.java)
+            Toast.makeText(this, "open type word", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, TypeWordActivity::class.java)
             startActivity(intent)
         }
 
-        editButton.setOnClickListener {
-            Toast.makeText(this@TopicDetailActivity, "open edit", Toast.LENGTH_SHORT).show()
-            val intent = Intent(this@TopicDetailActivity, ChangeTopicActivity::class.java)
-            intent.putExtra(ChangeTopicActivity.KEY_TOPIC_ID, topicId)
-            startActivity(intent)
+        openMenuButton.setOnClickListener {
+            openBottomDialog()
         }
 
         backButton.setOnClickListener {
@@ -94,7 +95,6 @@ class TopicDetailActivity : AppCompatActivity() {
     }
 
     private fun loadData() {
-        Toast.makeText(this@TopicDetailActivity, "Topic id is:$topicId", Toast.LENGTH_SHORT).show()
 
         val myRef = database.getReference(AppConst.KEY_TOPIC).child(topicId)
 
@@ -103,7 +103,7 @@ class TopicDetailActivity : AppCompatActivity() {
                 topic = documentSnapshot.getValue(Topic::class.java) as Topic
                 bindingData()
             } else {
-                Toast.makeText(this@TopicDetailActivity, "Topic không tồn tại.", Toast.LENGTH_SHORT)
+                Toast.makeText(this, "Topic không tồn tại.", Toast.LENGTH_SHORT)
                     .show()
                 finish()
             }
@@ -147,15 +147,89 @@ class TopicDetailActivity : AppCompatActivity() {
 
     private fun initCard(vocabulary: Vocabulary) {
         val view: View = layoutInflater.inflate(R.layout.item_vocabulary_view, linearLayout, false)
-
+        // map view
         val termTextView: TextView = view.findViewById(R.id.term_text_view)
         val definitionTextView: TextView = view.findViewById(R.id.definition_text_view)
-
-        // Log.d(AppConst.DEBUG_TAG, "title"+ topic.title)
+        val playSoundImageView: ImageView = view.findViewById(R.id.play_sound_image_view)
 
         termTextView.text = vocabulary.term
         definitionTextView.text = vocabulary.definition
+        // set event
+        playSoundImageView.setOnClickListener {
+
+        }
 
         linearLayout.addView(view)
+    }
+
+
+
+
+    @SuppressLint("InflateParams")
+    private fun openBottomDialog() {
+        val sheetDialog = BottomSheetDialog(this)
+        val view: View = layoutInflater.inflate(R.layout.activity_topic_action, null)
+        sheetDialog.setContentView(view)
+
+        // map view
+        val deleteTopicButton: LinearLayout = view.findViewById(R.id.delete_topic_button)
+        val openUpdateButton: LinearLayout = view.findViewById(R.id.open_update_button)
+        val backButton: TextView = view.findViewById(R.id.back_btn)
+
+        // set event
+        deleteTopicButton.setOnClickListener {
+            sheetDialog.dismiss()
+
+            val dialog = Dialog(this)
+            val view1: View = layoutInflater.inflate(R.layout.dialog_confirm, null)
+            dialog.setContentView(view1)
+            // set width and height
+            dialog.window!!.setLayout(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+
+            // map view
+            val okButton : Button = view1.findViewById(R.id.ok_btn)
+            val cancelButton : Button = view1.findViewById(R.id.cancel_button)
+
+            okButton.setOnClickListener {
+                handleDelete()
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+            }
+
+            cancelButton.setOnClickListener{
+                dialog.dismiss()
+            }
+            dialog.show()
+        }
+
+        openUpdateButton.setOnClickListener {
+            val intent = Intent(this, ChangeTopicActivity::class.java)
+            intent.putExtra(ChangeTopicActivity.KEY_TOPIC_ID, topicId)
+            startActivity(intent)
+        }
+
+        backButton.setOnClickListener {
+            sheetDialog.dismiss()
+        }
+
+        sheetDialog.show()
+
+    }
+
+    private fun handleDelete() {
+        val myRef = database.getReference(AppConst.KEY_TOPIC)
+        myRef.child(topicId).removeValue().addOnCompleteListener { task ->
+            // Kiểm tra kết quả
+            if (task.isSuccessful) {
+                // Xóa bản ghi thành công
+                Toast.makeText(this, "Xóa bản ghi thành công", Toast.LENGTH_SHORT).show()
+            } else {
+                // Xóa bản ghi thất bại
+                Toast.makeText(this, "Xóa bản ghi thất bại. ${task.exception}", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }

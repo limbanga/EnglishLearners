@@ -71,7 +71,7 @@ class HomeFragment : Fragment() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e(AppConst.DEBUG_TAG, "Failed to read value.", error.toException())
+                Log.e(AppConst.DEBUG_TAG, "Failed to read value.${error.message}", error.toException())
             }
         })
 
