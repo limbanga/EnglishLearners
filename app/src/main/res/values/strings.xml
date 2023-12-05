@@ -2,4 +2,8 @@
     <string name="app_name">EnglishLearners</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="update_topic_title">Chỉnh sửa học phần</string>
+    <string name="add_desc_label">+ Mô tả</string>
+    <string name="desc_hint">Mô tả</string>
+    <string name="term_text">Thuật ngữ</string>
 </resources>

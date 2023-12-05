@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "811471411997",
+    "project_id": "el011223",
+    "storage_bucket": "el011223.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:811471411997:android:5a48256472df17c24f1ff4",
+        "android_client_info": {
+          "package_name": "com.example.englishlearners"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD45aQglZQAleWaeRtnl7kzzhTJ5ZANBvw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

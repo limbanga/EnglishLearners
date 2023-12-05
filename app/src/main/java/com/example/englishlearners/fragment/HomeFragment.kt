@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.example.englishlearners.AppConst
 import com.example.englishlearners.R
+import com.example.englishlearners.Utils
 import com.example.englishlearners.activity.TopicDetailActivity
 import com.example.englishlearners.model.Topic
 import com.google.firebase.database.DataSnapshot
@@ -18,6 +19,9 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import java.text.SimpleDateFormat
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 class HomeFragment : Fragment() {
@@ -25,6 +29,7 @@ class HomeFragment : Fragment() {
     private val database = Firebase.database
 
     private lateinit var linearLayout: LinearLayout
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -43,7 +48,7 @@ class HomeFragment : Fragment() {
 
 
     private fun loadData() {
-        val myRef = database.getReference(AppConst.KEY_TOPIC)
+        val myRef = database.getReference(AppConst.KEY_TOPIC).orderByChild("updated")
 
         myRef.addValueEventListener(object : ValueEventListener {
 
@@ -51,14 +56,14 @@ class HomeFragment : Fragment() {
                 // remove all view before add
                 linearLayout.removeAllViews()
 
-                for (snapshot in dataSnapshot.children) {
+                for (snapshot in dataSnapshot.children.reversed()) {
 
                     val itemValue = snapshot.getValue(Topic::class.java)
-                    val itemKey =snapshot.key.toString()
+                    val itemKey = snapshot.key.toString()
 
                     if (itemValue != null) {
-                        val topicWithId = Topic(itemKey, itemValue.title)
-                        initCard(topicWithId)
+                        itemValue.id = itemKey
+                        initCard(itemValue)
                     } else {
                         Log.d(AppConst.DEBUG_TAG, itemKey + "is null")
                     }
@@ -77,9 +82,10 @@ class HomeFragment : Fragment() {
             .inflate(R.layout.item_topic, linearLayout, false)
 
         val titleTextView: TextView = view.findViewById(R.id.title)
+        val timeSinceTextView: TextView = view.findViewById(R.id.time_since_text_view)
 
-        Log.d(AppConst.DEBUG_TAG, "title"+ topic.title)
         titleTextView.text = topic.title
+        timeSinceTextView.text = Utils.getTimeSince(topic.updated)
 
         view.setOnClickListener {
             val intent = Intent(requireContext(), TopicDetailActivity::class.java)
@@ -91,6 +97,7 @@ class HomeFragment : Fragment() {
 
         linearLayout.addView(view)
     }
+
 }
 
 

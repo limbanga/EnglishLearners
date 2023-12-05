@@ -22,7 +22,8 @@
             android:src="@drawable/baseline_arrow_back_24" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/app_title_text_view"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_weight="1"
@@ -53,14 +54,31 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/add_desc"
+            android:id="@+id/add_desc_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="+ Mô tả"
+            android:text="@string/add_desc_label"
             android:textColor="@color/primary"
             android:textSize="24sp"
             android:textStyle="bold" />
+
     </LinearLayout>
+
+    <EditText
+        android:id="@+id/topic_desc_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/desc_hint"
+        android:textSize="22sp"
+        android:layout_marginBottom="10dp"
+        android:visibility="gone" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/term_text"
+        android:textSize="22sp"
+        android:textColor="@color/black"/>
 
     <!--Vocabulary item -->
     <LinearLayout

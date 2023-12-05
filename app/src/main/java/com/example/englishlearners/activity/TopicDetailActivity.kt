@@ -81,6 +81,9 @@ class TopicDetailActivity : AppCompatActivity() {
 
         editButton.setOnClickListener {
             Toast.makeText(this@TopicDetailActivity, "open edit", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this@TopicDetailActivity, ChangeTopicActivity::class.java)
+            intent.putExtra(ChangeTopicActivity.KEY_TOPIC_ID, topicId)
+            startActivity(intent)
         }
 
         backButton.setOnClickListener {
@@ -131,12 +134,11 @@ class TopicDetailActivity : AppCompatActivity() {
                 Log.e(AppConst.DEBUG_TAG, "Failed to read value.", error.toException())
             }
         })
-
     }
 
     private fun bindingData() {
         titleTextView.text = topic.title
-        if (topic.desc.isNullOrEmpty()) {
+        if (topic.desc.isEmpty()) {
             descTextView.visibility = View.GONE
         } else {
             descTextView.text = topic.desc
