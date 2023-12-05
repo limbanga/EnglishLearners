@@ -32,7 +32,7 @@ class TopicDetailActivity : AppCompatActivity() {
     private lateinit var topicId: String
     private lateinit var topic: Topic
 
-    private lateinit var textToSpeech: TextToSpeech
+    private var textToSpeech: TextToSpeech? = null
     private val database = Firebase.database
 
     private lateinit var linearLayout: LinearLayout
@@ -157,11 +157,11 @@ class TopicDetailActivity : AppCompatActivity() {
         definitionTextView.text = vocabulary.definition
         // set event
         playSoundImageView.setOnClickListener {
-            textToSpeech = TextToSpeech(applicationContext){
+            textToSpeech = TextToSpeech(applicationContext) {
                 if (it == TextToSpeech.SUCCESS) {
-                    textToSpeech.language = Locale.US
-                    textToSpeech.setSpeechRate(1.0f)
-                    textToSpeech.speak(vocabulary.term, TextToSpeech.QUEUE_ADD, null)
+                    textToSpeech!!.language = Locale.US
+                    textToSpeech!!.setSpeechRate(1.0f)
+                    textToSpeech!!.speak(vocabulary.term, TextToSpeech.QUEUE_ADD, null)
                 }
             }
         }
@@ -170,7 +170,7 @@ class TopicDetailActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        textToSpeech.shutdown()
+        textToSpeech?.shutdown()
         super.onDestroy()
     }
 

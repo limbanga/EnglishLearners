@@ -26,7 +26,7 @@ class LibraryFragment : Fragment() {
         viewPager.adapter = adapter
         tabLayout.setupWithViewPager(viewPager)
 
-        adapter.addFragment(HomeFragment(), "Topic")
+        adapter.addFragment(TopicFragment(), "Topic")
         adapter.addFragment(FolderFragment(), "Folder")
         adapter.notifyDataSetChanged()
 

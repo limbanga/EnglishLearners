@@ -7,8 +7,9 @@
     tools:context=".fragment.ProfileFragment">
 
     <TextView
+        android:id="@+id/display_name_text_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:text="Profile"
         android:textSize="32sp"
         android:layout_weight="1"

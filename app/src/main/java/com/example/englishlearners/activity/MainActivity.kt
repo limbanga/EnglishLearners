@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.englishlearners.R
 import com.example.englishlearners.dialog.FolderDialog
-import com.example.englishlearners.fragment.HomeFragment
+import com.example.englishlearners.fragment.TopicFragment
 import com.example.englishlearners.fragment.LibraryFragment
 import com.example.englishlearners.fragment.ProfileFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -35,11 +35,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         val bottomNav: BottomNavigationView = findViewById(R.id.bottomNavigationView)
 
-        replaceFragment(HomeFragment())
+        replaceFragment(TopicFragment())
 
         bottomNav.setOnItemSelectedListener {
             when (it.itemId) {
-                R.id.menu_item_home -> replaceFragment(HomeFragment())
+                R.id.menu_item_home -> replaceFragment(TopicFragment())
                 R.id.menu_item_profile -> replaceFragment(ProfileFragment())
                 R.id.menu_item_library -> replaceFragment(LibraryFragment())
                 R.id.menu_item_add -> {
