@@ -32,6 +32,7 @@ class TopicDetailActivity : AppCompatActivity() {
     private lateinit var topicId: String
     private lateinit var topic: Topic
 
+    private lateinit var textToSpeech: TextToSpeech
     private val database = Firebase.database
 
     private lateinit var linearLayout: LinearLayout
@@ -156,14 +157,22 @@ class TopicDetailActivity : AppCompatActivity() {
         definitionTextView.text = vocabulary.definition
         // set event
         playSoundImageView.setOnClickListener {
-
+            textToSpeech = TextToSpeech(applicationContext){
+                if (it == TextToSpeech.SUCCESS) {
+                    textToSpeech.language = Locale.US
+                    textToSpeech.setSpeechRate(1.0f)
+                    textToSpeech.speak(vocabulary.term, TextToSpeech.QUEUE_ADD, null)
+                }
+            }
         }
 
         linearLayout.addView(view)
     }
 
-
-
+    override fun onDestroy() {
+        textToSpeech.shutdown()
+        super.onDestroy()
+    }
 
     @SuppressLint("InflateParams")
     private fun openBottomDialog() {
@@ -190,8 +199,8 @@ class TopicDetailActivity : AppCompatActivity() {
             )
 
             // map view
-            val okButton : Button = view1.findViewById(R.id.ok_btn)
-            val cancelButton : Button = view1.findViewById(R.id.cancel_button)
+            val okButton: Button = view1.findViewById(R.id.ok_btn)
+            val cancelButton: Button = view1.findViewById(R.id.cancel_button)
 
             okButton.setOnClickListener {
                 handleDelete()
@@ -199,7 +208,7 @@ class TopicDetailActivity : AppCompatActivity() {
                 startActivity(intent)
             }
 
-            cancelButton.setOnClickListener{
+            cancelButton.setOnClickListener {
                 dialog.dismiss()
             }
             dialog.show()
@@ -228,7 +237,8 @@ class TopicDetailActivity : AppCompatActivity() {
                 Toast.makeText(this, "Xóa bản ghi thành công", Toast.LENGTH_SHORT).show()
             } else {
                 // Xóa bản ghi thất bại
-                Toast.makeText(this, "Xóa bản ghi thất bại. ${task.exception}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Xóa bản ghi thất bại. ${task.exception}", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }
