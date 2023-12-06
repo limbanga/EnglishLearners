@@ -19,29 +19,29 @@ class SignUpActivity : AppCompatActivity() {
     private lateinit var mAuth: FirebaseAuth
     private val database = Firebase.database
 
-    private lateinit var editTextDisplayName : EditText
-    private lateinit var editTextEmail : EditText
-    private lateinit var editTextPassword : EditText
-    private lateinit var buttonSignUp : Button
-    private lateinit var navToLoginScreen : TextView
+    private lateinit var displayNameEditText : EditText
+    private lateinit var emailEditText : EditText
+    private lateinit var passwordEditText : EditText
+    private lateinit var signUpButton : Button
+    private lateinit var loginScreenLink : TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_up)
 
         mAuth = FirebaseAuth.getInstance()
-        editTextDisplayName = findViewById(R.id.edit_text_display_name)
-        editTextEmail = findViewById(R.id.edit_text_email_sign_up)
-        editTextPassword = findViewById(R.id.edit_text_password_sign_up)
-        buttonSignUp = findViewById(R.id.button_sign_up)
-        navToLoginScreen = findViewById(R.id.nav_to_login_screen)
+        displayNameEditText = findViewById(R.id.edit_text_display_name)
+        emailEditText = findViewById(R.id.edit_text_email_sign_up)
+        passwordEditText = findViewById(R.id.edit_text_password_sign_up)
+        signUpButton = findViewById(R.id.button_sign_up)
+        loginScreenLink = findViewById(R.id.nav_to_login_screen)
 
-        buttonSignUp.setOnClickListener{
-//            Toast.makeText(this@SignUpActivity, "buttonSignUp clicked", Toast.LENGTH_SHORT).show()
-            signUp(editTextEmail.text.toString(), editTextPassword.text.toString())
+        signUpButton.setOnClickListener{
+            // validate
+            handleSignUp()
         }
 
-        navToLoginScreen.setOnClickListener{
+        loginScreenLink.setOnClickListener{
             Toast.makeText(this@SignUpActivity, "to login clicked", Toast.LENGTH_SHORT).show()
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
@@ -49,8 +49,12 @@ class SignUpActivity : AppCompatActivity() {
         }
     }
 
-    private fun signUp(email: String, password: String) {
-        mAuth.createUserWithEmailAndPassword(email, password)
+    private fun handleSignUp() {
+
+        mAuth.createUserWithEmailAndPassword(
+            emailEditText.text.toString(),
+            passwordEditText.text.toString())
+
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
 
@@ -59,7 +63,7 @@ class SignUpActivity : AppCompatActivity() {
                     val newRef = myRef.child(uid)
                     // get data from ui
                     val data = mapOf(
-                        "displayName" to "abc",
+                        "displayName" to displayNameEditText.text.toString(),
                         "created" to System.currentTimeMillis(),
                         "updated" to System.currentTimeMillis(),
                     )
