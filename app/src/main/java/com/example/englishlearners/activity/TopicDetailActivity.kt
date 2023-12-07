@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import com.example.englishlearners.AppConst
 import com.example.englishlearners.R
+import com.example.englishlearners.model.AppUser
 import com.example.englishlearners.model.Topic
 import com.example.englishlearners.model.Vocabulary
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -43,6 +44,7 @@ class TopicDetailActivity : AppCompatActivity() {
     private lateinit var openMenuButton: ImageView
     private lateinit var titleTextView: TextView
     private lateinit var descTextView: TextView
+    private lateinit var displayNameTextView: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +65,7 @@ class TopicDetailActivity : AppCompatActivity() {
         openMenuButton = findViewById(R.id.open_menu_btn)
         titleTextView = findViewById(R.id.title_text_view)
         descTextView = findViewById(R.id.desc_text_view)
+        displayNameTextView = findViewById(R.id.display_name_text_view)
 
         // set event
         flashCard.setOnClickListener {
@@ -96,17 +99,23 @@ class TopicDetailActivity : AppCompatActivity() {
     }
 
     private fun loadData() {
-
         val myRef = database.getReference(AppConst.KEY_TOPIC).child(topicId)
-
         myRef.get().addOnSuccessListener { documentSnapshot ->
-            if (documentSnapshot.exists()) {
-                topic = documentSnapshot.getValue(Topic::class.java) as Topic
-                bindingData()
-            } else {
+            if (!documentSnapshot.exists()) {
                 Toast.makeText(this, "Topic không tồn tại.", Toast.LENGTH_SHORT)
                     .show()
                 finish()
+            }
+            topic = documentSnapshot.getValue(Topic::class.java) as Topic
+            val userRef =  database.getReference(AppConst.KEY_USER).child(topic.ownerId)
+            userRef.get().addOnSuccessListener { userSnapshot ->
+                if (!userSnapshot.exists()) {
+                    Toast.makeText(this, "Owner không tồn tại.", Toast.LENGTH_SHORT)
+                        .show()
+                    finish()
+                }
+                topic.owner = userSnapshot.getValue(AppUser::class.java)
+                bindingData()
             }
         }
         // get list vocabulary
@@ -139,6 +148,7 @@ class TopicDetailActivity : AppCompatActivity() {
 
     private fun bindingData() {
         titleTextView.text = topic.title
+        displayNameTextView.text = topic.owner?.displayName
         if (topic.desc.isEmpty()) {
             descTextView.visibility = View.GONE
         } else {
@@ -218,6 +228,7 @@ class TopicDetailActivity : AppCompatActivity() {
             val intent = Intent(this, ChangeTopicActivity::class.java)
             intent.putExtra(ChangeTopicActivity.KEY_TOPIC_ID, topicId)
             startActivity(intent)
+            sheetDialog.dismiss()
         }
 
         backButton.setOnClickListener {
@@ -231,12 +242,9 @@ class TopicDetailActivity : AppCompatActivity() {
     private fun handleDelete() {
         val myRef = database.getReference(AppConst.KEY_TOPIC)
         myRef.child(topicId).removeValue().addOnCompleteListener { task ->
-            // Kiểm tra kết quả
             if (task.isSuccessful) {
-                // Xóa bản ghi thành công
                 Toast.makeText(this, "Xóa bản ghi thành công", Toast.LENGTH_SHORT).show()
             } else {
-                // Xóa bản ghi thất bại
                 Toast.makeText(this, "Xóa bản ghi thất bại. ${task.exception}", Toast.LENGTH_SHORT)
                     .show()
             }

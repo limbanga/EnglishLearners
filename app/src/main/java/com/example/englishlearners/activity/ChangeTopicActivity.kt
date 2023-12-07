@@ -170,7 +170,7 @@ class ChangeTopicActivity : AppCompatActivity() {
                 Toast.makeText(this, "Có lỗi xảy ra. $databaseError.message", Toast.LENGTH_LONG)
                     .show()
             } else {
-                Toast.makeText(this, "Thêm học phần thành công.", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Sửa học phần thành công.", Toast.LENGTH_LONG).show()
                 finish()
             }
         }

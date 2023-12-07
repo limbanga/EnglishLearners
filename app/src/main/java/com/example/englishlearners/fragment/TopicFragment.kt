@@ -34,16 +34,12 @@ class TopicFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_home, container, false)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        val rootView = requireView()
+        val rootView = inflater.inflate(R.layout.fragment_topic, container, false)
         // map view
         linearLayout = rootView.findViewById(R.id.list)
-
-        loadData();
+        // load data
+        loadData()
+        return rootView
     }
 
     private fun loadData() {
@@ -68,7 +64,6 @@ class TopicFragment : Fragment() {
 
                         userRef.addValueEventListener(object : ValueEventListener {
                             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                                // Đọc dữ liệu từ dataSnapshot và chuyển đổi sang đối tượng AppUser
                                 val appUser: AppUser? = dataSnapshot.getValue(AppUser::class.java)
                                 if (appUser != null) {
                                     appUser.id = dataSnapshot.key.toString()
@@ -87,7 +82,6 @@ class TopicFragment : Fragment() {
                                 Log.d(AppConst.DEBUG_TAG, "Khong the doc owner")
                             }
                         })
-
 
                     } else {
                         Log.d(AppConst.DEBUG_TAG, itemKey + "is null")
@@ -131,7 +125,6 @@ class TopicFragment : Fragment() {
 
         linearLayout.addView(view)
     }
-
 
 }
 

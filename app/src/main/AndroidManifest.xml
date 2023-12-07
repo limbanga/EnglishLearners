@@ -15,7 +15,10 @@
         android:theme="@style/Theme.EnglishLearners"
         tools:targetApi="31">
         <activity
-            android:name=".AccountSettingActivity"
+            android:name=".activity.FolderDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.AccountSettingActivity"
             android:exported="false" />
         <activity
             android:name=".activity.ChangeTopicActivity"
