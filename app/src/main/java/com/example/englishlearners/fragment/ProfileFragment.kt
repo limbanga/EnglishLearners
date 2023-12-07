@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import com.example.englishlearners.AppConst
 import com.example.englishlearners.R
 import com.example.englishlearners.activity.LoginActivity
+import com.example.englishlearners.activity.MainActivity
 import com.example.englishlearners.model.AppUser
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -24,8 +25,8 @@ import com.google.firebase.ktx.Firebase
 
 class ProfileFragment : Fragment() {
 
+    private val mAuth = FirebaseAuth.getInstance()
     private var firebaseUser: FirebaseUser? = null
-    private lateinit var mAuth : FirebaseAuth
     private val database = Firebase.database
 
     private lateinit var logoutButton: Button
@@ -43,15 +44,7 @@ class ProfileFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val view1 = requireView()
         // get current user
-        mAuth = FirebaseAuth.getInstance()
-        firebaseUser = mAuth.currentUser
-        if (firebaseUser == null) {
-            // User is not logged in
-            val intent = Intent (requireContext(), LoginActivity::class.java)
-            requireActivity().startActivity(intent)
-            return
-        }
-
+        firebaseUser = MainActivity.getFireBaseUser(requireContext())
         // map view
         logoutButton = view1.findViewById(R.id.logout_btn)
         displayNameTextView = view1.findViewById(R.id.display_name_text_view)
@@ -70,8 +63,6 @@ class ProfileFragment : Fragment() {
                 val appUser: AppUser? = dataSnapshot.getValue(AppUser::class.java)
                 if (appUser != null) {
                     displayNameTextView.text = appUser.displayName
-                    // Đã lấy được thông tin của AppUser từ Firebase
-                    // Sử dụng thông tin ở đây (ví dụ: hiển thị thông tin, xử lý dữ liệu, ...)
                 } else {
                     Toast.makeText(requireContext(), "Có lỗi xảy ra.", Toast.LENGTH_SHORT).show()
                 }

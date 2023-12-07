@@ -1,11 +1,14 @@
 package com.example.englishlearners.activity
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat.startActivity
 import androidx.fragment.app.Fragment
 import com.example.englishlearners.R
 import com.example.englishlearners.dialog.FolderDialog
@@ -15,19 +18,32 @@ import com.example.englishlearners.fragment.ProfileFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 
 
 class MainActivity : AppCompatActivity() {
 
+
+    companion object {
+         fun getFireBaseUser(context : Context) : FirebaseUser {
+             val mAuth = FirebaseAuth.getInstance()
+             var firebaseUser: FirebaseUser? = null
+
+             firebaseUser = mAuth.currentUser
+             if (firebaseUser == null) {
+                 // User is not logged in
+                 Toast.makeText(context, "Vui lòng đăng nhập.", Toast.LENGTH_LONG).show()
+                 val intent = Intent(context, LoginActivity::class.java)
+                 context.startActivity(intent)
+             }
+             return firebaseUser!!
+        }
+
+    }
+
     override fun onStart() {
         super.onStart()
-        val mAuth = FirebaseAuth.getInstance()
-
-//        val currentUser = mAuth.currentUser
-//        if (currentUser == null) {
-//            val intent = Intent(this, LoginActivity::class.java)
-//            startActivity(intent)
-//        }
+        getFireBaseUser(this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
