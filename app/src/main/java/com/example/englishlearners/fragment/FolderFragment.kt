@@ -33,8 +33,9 @@ class FolderFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_folder, container, false)
-
+        // map view
         linearLayout = view.findViewById(R.id.list)
+        // load data
         loadData()
 
         return view

@@ -2,6 +2,7 @@ package com.example.englishlearners.activity
 
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -146,7 +147,8 @@ class ChangeTopicActivity : AppCompatActivity() {
                     .show()
             } else {
                 Toast.makeText(this, "Thêm học phần thành công.", Toast.LENGTH_LONG).show()
-                finish()
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
             }
         }
     }

@@ -3,12 +3,14 @@ package com.example.englishlearners.activity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.englishlearners.AppConst
 import com.example.englishlearners.R
+import com.example.englishlearners.fragment.TopicFragment
 import com.example.englishlearners.model.AppUser
 import com.example.englishlearners.model.Folder
 import com.example.englishlearners.model.Topic
@@ -50,6 +52,13 @@ class FolderDetailActivity : AppCompatActivity() {
         displayNameTextView = findViewById(R.id.display_name_text_view)
         // load data
         loadData()
+        // add topic fragment
+        val fragmentManager = supportFragmentManager
+        val transaction = fragmentManager.beginTransaction()
+        val fragment = TopicFragment()
+        transaction.replace(R.id.list, fragment)
+        transaction.commit()
+
     }
 
     private fun loadData() {

@@ -17,11 +17,11 @@ class LibraryFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_library, container, false)
+        val rootView = inflater.inflate(R.layout.fragment_library, container, false)
 
-        val tabLayout: TabLayout = view.findViewById(R.id.tab_layout)
-        val viewPager: ViewPager = view.findViewById(R.id.view_pager)
-        val adapter = ViewPagerAdapter(childFragmentManager) // Sử dụng childFragmentManager ở trong Fragment
+        val tabLayout: TabLayout = rootView.findViewById(R.id.tab_layout)
+        val viewPager: ViewPager = rootView.findViewById(R.id.view_pager)
+        val adapter = ViewPagerAdapter(childFragmentManager)
 
         viewPager.adapter = adapter
         tabLayout.setupWithViewPager(viewPager)
@@ -30,7 +30,7 @@ class LibraryFragment : Fragment() {
         adapter.addFragment(FolderFragment(), "Folder")
         adapter.notifyDataSetChanged()
 
-        return view
+        return rootView
     }
 
 }

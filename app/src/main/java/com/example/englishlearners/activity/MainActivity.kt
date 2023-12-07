@@ -14,8 +14,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.englishlearners.AppConst
+import com.example.englishlearners.fragment.HomeFragment
 import com.example.englishlearners.R
-import com.example.englishlearners.fragment.TopicFragment
 import com.example.englishlearners.fragment.LibraryFragment
 import com.example.englishlearners.fragment.ProfileFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -53,11 +53,11 @@ class MainActivity : AppCompatActivity() {
         val bottomNav: BottomNavigationView = findViewById(R.id.bottomNavigationView)
 
         firebaseUser = getFireBaseUser(this)
-        replaceFragment(TopicFragment())
+        replaceFragment(HomeFragment())
 
         bottomNav.setOnItemSelectedListener {
             when (it.itemId) {
-                R.id.menu_item_home -> replaceFragment(TopicFragment())
+                R.id.menu_item_home -> replaceFragment(HomeFragment())
                 R.id.menu_item_profile -> replaceFragment(ProfileFragment())
                 R.id.menu_item_library -> replaceFragment(LibraryFragment())
                 R.id.menu_item_add -> {
