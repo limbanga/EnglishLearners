@@ -214,6 +214,7 @@ class TopicDetailActivity : AppCompatActivity() {
 
             okButton.setOnClickListener {
                 handleDelete()
+                dialog.dismiss()
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
             }
@@ -240,10 +241,11 @@ class TopicDetailActivity : AppCompatActivity() {
     }
 
     private fun handleDelete() {
-        val myRef = database.getReference(AppConst.KEY_TOPIC)
-        myRef.child(topicId).removeValue().addOnCompleteListener { task ->
+        val myRef = database.getReference(AppConst.KEY_TOPIC).child(topicId)
+        myRef.removeValue().addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 Toast.makeText(this, "Xóa bản ghi thành công", Toast.LENGTH_SHORT).show()
+                finish()
             } else {
                 Toast.makeText(this, "Xóa bản ghi thất bại. ${task.exception}", Toast.LENGTH_SHORT)
                     .show()

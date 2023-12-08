@@ -11,6 +11,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.englishlearners.AppConst
 import com.example.englishlearners.R
 import com.example.englishlearners.Utils
@@ -22,9 +23,11 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 
-class TopicFragment : Fragment() {
+class TopicFragment(private var folderId: String? = null) : Fragment() {
 
     private val database = Firebase.database
 
@@ -38,9 +41,137 @@ class TopicFragment : Fragment() {
         // map view
         linearLayout = rootView.findViewById(R.id.list)
         // load data
-        loadData()
+        if (folderId != null) {
+            loadDataInFolder()
+        } else {
+            loadData()
+        }
         return rootView
     }
+
+//    private fun loadDataInFolder() {
+//        val myRef =
+//            database.getReference(AppConst.KEY_FOLDER).child(folderId!!).child(AppConst.KEY_TOPIC)
+//
+//        myRef.addValueEventListener(object : ValueEventListener {
+//
+//            override fun onDataChange(dataSnapshot: DataSnapshot) {
+//                // remove all view before add
+//                linearLayout.removeAllViews()
+//
+//                for (snapshot in dataSnapshot.children.reversed()) {
+//                    val itemKey = snapshot.key.toString()
+//
+//                    val topicRef =
+//                        database.getReference(AppConst.KEY_TOPIC).child(itemKey)
+//
+//                    topicRef.get().addOnSuccessListener { documentSnapshot ->
+//                        if (!documentSnapshot.exists()) {
+//                            Log.e(
+//                                AppConst.DEBUG_TAG,
+//                                "Topic khong ton tai"
+//                            )
+//                            return@addOnSuccessListener
+//                        }
+//
+//                        val topic = documentSnapshot.getValue(Topic::class.java)
+//                            ?: return@addOnSuccessListener
+//
+//                        val userRef =
+//                            database.getReference(AppConst.KEY_USER).child(topic.ownerId)
+//                                .get().addOnSuccessListener { documentSnapshot1 ->
+//                                    if (!documentSnapshot1.exists()) {
+//                                        Log.e(
+//                                            AppConst.DEBUG_TAG,
+//                                            "User khong ton tai"
+//                                        )
+//                                    } else {
+//                                        topic.owner = documentSnapshot1.getValue(AppUser::class.java)
+//                                        initCard(topic)
+//                                    }
+//                                }
+//                    }
+//
+//                }
+//            }
+//
+//            override fun onCancelled(error: DatabaseError) {
+//                Log.e(
+//                    AppConst.DEBUG_TAG,
+//                    "Failed to read value.${error.message}",
+//                    error.toException()
+//                )
+//            }
+//        })
+//    }
+
+    private fun loadDataInFolder() {
+        val myRef = database.getReference(AppConst.KEY_FOLDER).child(folderId!!)
+            .child(AppConst.KEY_TOPIC)
+
+        myRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                // Remove all views before adding
+                linearLayout.removeAllViews()
+
+                val topics = mutableListOf<Topic>()
+
+                for (snapshot in dataSnapshot.children.reversed()) {
+                    val itemKey = snapshot.key.toString()
+                    val topicRef = database.getReference(AppConst.KEY_TOPIC).child(itemKey)
+
+                    topicRef.get().addOnSuccessListener { documentSnapshot ->
+                        if (documentSnapshot.exists()) {
+                            val topic = documentSnapshot.getValue(Topic::class.java)
+                            topic?.let {
+                                topics.add(it)
+                            }
+                        }
+                        // If all topics are fetched, initialize cards
+                        if (topics.size == dataSnapshot.childrenCount.toInt()) {
+                            fetchOwners(topics)
+                        }
+                    }.addOnFailureListener { exception ->
+                        Log.e(AppConst.DEBUG_TAG, "Error fetching topic: $exception")
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e(
+                    AppConst.DEBUG_TAG,
+                    "Failed to read value.${error.message}",
+                    error.toException()
+                )
+            }
+        })
+    }
+
+    private fun fetchOwners(topics: List<Topic>) {
+        lifecycleScope.launch {
+            val topicWithOwners = mutableListOf<Pair<Topic, AppUser?>>()
+
+            topics.forEach { topic ->
+                val userRef =
+                    database.getReference(AppConst.KEY_USER).child(topic.ownerId).get().await()
+                val userSnapshot = userRef
+
+                val owner = if (userSnapshot.exists()) {
+                    userSnapshot.getValue(AppUser::class.java)
+                } else {
+                    null
+                }
+
+                topicWithOwners.add(topic to owner)
+            }
+
+            topicWithOwners.forEach { (topic, owner) ->
+                topic.owner = owner
+                initCard(topic)
+            }
+        }
+    }
+
 
     private fun loadData() {
         val myRef = database.getReference(AppConst.KEY_TOPIC).orderByChild("updated")
@@ -102,6 +233,10 @@ class TopicFragment : Fragment() {
 
     @SuppressLint("SetTextI18n")
     private fun initCard(topic: Topic) {
+        if (!isAdded) {
+            return
+        }
+
         val view: View = requireActivity().layoutInflater
             .inflate(R.layout.item_topic, linearLayout, false)
 

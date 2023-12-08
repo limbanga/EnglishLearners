@@ -133,7 +133,7 @@ class MainActivity : AppCompatActivity() {
         // add topic
         addTopic.setOnClickListener() {
             bottomSheetDialog.dismiss()
-            val intent = Intent(this@MainActivity, ChangeTopicActivity::class.java)
+            val intent = Intent(this, ChangeTopicActivity::class.java)
             startActivity(intent)
         }
         bottomSheetDialog.show()

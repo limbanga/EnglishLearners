@@ -147,8 +147,7 @@ class ChangeTopicActivity : AppCompatActivity() {
                     .show()
             } else {
                 Toast.makeText(this, "Thêm học phần thành công.", Toast.LENGTH_LONG).show()
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
+                finish()
             }
         }
     }
