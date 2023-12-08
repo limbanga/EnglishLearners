@@ -100,6 +100,7 @@ class FolderFragment : Fragment() {
 
     @SuppressLint("SetTextI18n")
     private fun initCard(folder: Folder) {
+        if (!isAdded) return
         val view: View = requireActivity().layoutInflater
             .inflate(R.layout.item_folder, linearLayout, false)
 

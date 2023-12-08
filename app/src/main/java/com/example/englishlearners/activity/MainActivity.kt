@@ -29,7 +29,7 @@ import com.google.firebase.ktx.Firebase
 class MainActivity : AppCompatActivity() {
 
     companion object {
-        fun getFireBaseUser(context: Context): FirebaseUser {
+        fun getFireBaseUser(context: Context): FirebaseUser? {
             val mAuth = FirebaseAuth.getInstance()
             var firebaseUser: FirebaseUser? = null
 
@@ -39,8 +39,10 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(context, "Vui lòng đăng nhập.", Toast.LENGTH_LONG).show()
                 val intent = Intent(context, LoginActivity::class.java)
                 context.startActivity(intent)
+                return null
+            } else {
+                return firebaseUser
             }
-            return firebaseUser!!
         }
 
     }

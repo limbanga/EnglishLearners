@@ -28,7 +28,7 @@ class ChangeTopicActivity : AppCompatActivity() {
     }
 
     private val database = Firebase.database
-    private lateinit var firebaseUser: FirebaseUser
+    private var firebaseUser: FirebaseUser? = null
 
     private var topicId: String = ""
     private var topic: Topic? = null
@@ -134,7 +134,7 @@ class ChangeTopicActivity : AppCompatActivity() {
         val data = mapOf(
             "title" to titleEditText.text.toString(),
             "desc" to descEditText.text.toString(),
-            "ownerId" to firebaseUser.uid,
+            "ownerId" to firebaseUser!!.uid,
             "created" to System.currentTimeMillis(),
             "updated" to System.currentTimeMillis(),
             "vocabularyCount" to list.count(),
@@ -159,7 +159,7 @@ class ChangeTopicActivity : AppCompatActivity() {
         val data = mapOf(
             "title" to titleEditText.text.toString(),
             "desc" to descEditText.text.toString(),
-            "ownerId" to firebaseUser.uid,
+            "ownerId" to firebaseUser!!.uid,
             "created" to topic!!.created, // không cập nhật trường này
             "updated" to System.currentTimeMillis(),
             "vocabularyCount" to list.count(),

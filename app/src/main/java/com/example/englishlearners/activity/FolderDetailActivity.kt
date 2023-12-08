@@ -107,6 +107,7 @@ class FolderDetailActivity : AppCompatActivity() {
         // map view
         val deleteTopicButton: LinearLayout = view.findViewById(R.id.delete_topic_button)
         val openUpdateButton: LinearLayout = view.findViewById(R.id.open_update_button)
+        val openAddButton: LinearLayout = view.findViewById(R.id.open_add_button)
         val backButton: TextView = view.findViewById(R.id.back_btn)
 
         // set event
@@ -147,6 +148,13 @@ class FolderDetailActivity : AppCompatActivity() {
 //
 //        backButton.setOnClickListener {
 //            sheetDialog.dismiss()
+        }
+
+        openAddButton.setOnClickListener{
+            sheetDialog.dismiss()
+            val intent = Intent(this, AddTopicToFolderActivity::class.java)
+            //intent.putExtra(ChangeTopicActivity.KEY_TOPIC_ID, topicId)
+            startActivity(intent)
         }
 
         sheetDialog.show()
