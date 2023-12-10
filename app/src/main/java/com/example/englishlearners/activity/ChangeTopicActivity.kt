@@ -2,24 +2,18 @@ package com.example.englishlearners.activity
 
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import com.example.englishlearners.AppConst
+import androidx.lifecycle.lifecycleScope
+import com.example.englishlearners.FirebaseService
 import com.example.englishlearners.R
 import com.example.englishlearners.model.Topic
 import com.example.englishlearners.model.Vocabulary
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.launch
 
 class ChangeTopicActivity : AppCompatActivity() {
 
@@ -27,7 +21,6 @@ class ChangeTopicActivity : AppCompatActivity() {
         const val KEY_TOPIC_ID = "KEY_TOPIC_ID"
     }
 
-    private val database = Firebase.database
     private var firebaseUser: FirebaseUser? = null
 
     private var topicId: String = ""
@@ -72,9 +65,37 @@ class ChangeTopicActivity : AppCompatActivity() {
         // set event
         saveChangeButton.setOnClickListener {
             if (topicId.isBlank()) {
-                handleAdd()
+                lifecycleScope.launch {
+                    val topicToAdd = reverseBindingTopic(topic)
+
+                    val addedTopic = FirebaseService.adddTopic(topicToAdd, 0)
+
+                    if (addedTopic != null) {
+                        Toast.makeText(this@ChangeTopicActivity, "Thêm thành công.", Toast.LENGTH_SHORT)
+                            .show()
+                    } else {
+                        Toast.makeText(this@ChangeTopicActivity, "Thêm không thành công.", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                }
             } else {
-                handleUpdate()
+                lifecycleScope.launch {
+                    val topicToUpdate = reverseBindingTopic(topic)
+
+//                  val vocabularies: ArrayList<Vocabulary>? = ... // Lấy danh sách từ vựng từ nơi nào đó
+                    val vocabularyCount = 0L
+//                  vocabularies?.size ?: 0 // Tính toán vocabularyCount từ danh sách từ vựng
+
+                    val updatedTopic = FirebaseService.updateTopic(topicToUpdate, vocabularyCount)
+                    if (updatedTopic != null) {
+                        Toast.makeText(this@ChangeTopicActivity, "Cập nhật thành công.", Toast.LENGTH_SHORT)
+                            .show()
+                    } else {
+                        Toast.makeText(this@ChangeTopicActivity, "Cập nhật không thành công.", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                }
+
             }
         }
 
@@ -113,7 +134,7 @@ class ChangeTopicActivity : AppCompatActivity() {
                 )
 
                 list.add(vocabulary)
-                initCard(vocabulary)
+                setCardView(vocabulary)
                 dialog.dismiss()
             }
 
@@ -126,118 +147,66 @@ class ChangeTopicActivity : AppCompatActivity() {
         }
     }
 
-
-    private fun handleAdd() {
-        val myRef = database.getReference(AppConst.KEY_TOPIC)
-        val newRef = myRef.push()
-        // get data from ui
-        val data = mapOf(
-            "title" to titleEditText.text.toString(),
-            "desc" to descEditText.text.toString(),
-            "ownerId" to firebaseUser!!.uid,
-            "created" to System.currentTimeMillis(),
-            "updated" to System.currentTimeMillis(),
-            "vocabularyCount" to list.count(),
-            AppConst.KEY_VOCABULARY to list
-        )
-        newRef.setValue(data)
-        { databaseError, _ ->
-            if (databaseError != null) {
-                Toast.makeText(this, "Có lỗi xảy ra. $databaseError.message", Toast.LENGTH_LONG)
-                    .show()
-            } else {
-                Toast.makeText(this, "Thêm học phần thành công.", Toast.LENGTH_LONG).show()
-                finish()
-            }
+    // Lấy thông tin từ ui đưa vào topic
+    private fun reverseBindingTopic(topic: Topic?): Topic {
+        var result = topic
+        if (result == null) {
+            result = Topic()
         }
-    }
 
-    private fun handleUpdate() {
-        val myRef = database.getReference(AppConst.KEY_TOPIC)
-        val currentRef = myRef.child(topicId)
-        // get data from ui
-        val data = mapOf(
-            "title" to titleEditText.text.toString(),
-            "desc" to descEditText.text.toString(),
-            "ownerId" to firebaseUser!!.uid,
-            "created" to topic!!.created, // không cập nhật trường này
-            "updated" to System.currentTimeMillis(),
-            "vocabularyCount" to list.count(),
-            AppConst.KEY_VOCABULARY to list
-        )
-        currentRef.setValue(data)
-        { databaseError, _ ->
-            if (databaseError != null) {
-                Toast.makeText(this, "Có lỗi xảy ra. $databaseError.message", Toast.LENGTH_LONG)
-                    .show()
-            } else {
-                Toast.makeText(this, "Sửa học phần thành công.", Toast.LENGTH_LONG).show()
-                finish()
-            }
-        }
+        result.title = titleEditText.text.toString()
+        result.desc = descEditText.text.toString()
+        result.ownerId = firebaseUser!!.uid
+        result.vocabularyCount = -1
+
+        return result
     }
 
     private fun loadData() {
-//        Toast.makeText(this, "Topic id is:$topicId", Toast.LENGTH_SHORT).show()
-        val myRef = database.getReference(AppConst.KEY_TOPIC).child(topicId)
-
-        myRef.get().addOnSuccessListener { documentSnapshot ->
-            if (documentSnapshot.exists()) {
-                topic = documentSnapshot.getValue(Topic::class.java) as Topic
-                bindingData()
-            } else {
-                Toast.makeText(this, "Topic không tồn tại.", Toast.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+            val topic = FirebaseService.getTopic(topicId) ?: run {
+                Toast.makeText(this@ChangeTopicActivity, "Topic không tồn tại.", Toast.LENGTH_SHORT)
+                    .show()
                 finish()
+                return@launch
             }
+
+            bindingTopic(topic)
+            val result = FirebaseService.getVocabularies(topicId)
+            bindingVocabularies(result)
         }
-        // get list vocabulary
-        val listVocab = myRef.child(AppConst.KEY_VOCABULARY)
-        listVocab.addValueEventListener(object : ValueEventListener {
-
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                // remove all view before add
-                linearLayout.removeAllViews()
-
-                for (snapshot in dataSnapshot.children) {
-
-                    val itemValue = snapshot.getValue(Vocabulary::class.java)
-                    val itemKey = snapshot.key.toString()
-
-                    if (itemValue != null) {
-                        itemValue.id = itemKey
-                        list.add(itemValue)
-                        initCard(itemValue)
-                    } else {
-                        Log.d(AppConst.DEBUG_TAG, itemKey + "is null")
-                    }
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e(AppConst.DEBUG_TAG, "Failed to read value.", error.toException())
-            }
-        })
     }
 
-    private fun bindingData() {
-        titleEditText.setText(topic!!.title)
-        if (topic!!.desc.isBlank()) {
+    private fun bindingVocabularies(list: ArrayList<Vocabulary>) {
+        this.list = list
+        // set card view
+        list.forEach {
+            setCardView(it)
+        }
+    }
+
+    private fun bindingTopic(topic: Topic) {
+        // set topic id
+        this.topic = topic
+
+        titleEditText.setText(topic.title)
+        if (topic.desc.isBlank()) {
             descEditText.visibility = View.GONE
         } else {
-            descEditText.setText(topic!!.desc)
+            descEditText.setText(topic.desc)
         }
     }
 
-    private fun initCard(vocabulary: Vocabulary) {
+    private fun setCardView(vocabulary: Vocabulary) {
         val view: View = layoutInflater.inflate(R.layout.item_vocabulary_view, linearLayout, false)
-
+        // map view
         val termTextView: TextView = view.findViewById(R.id.term_text_view)
         val definitionTextView: TextView = view.findViewById(R.id.definition_text_view)
         val deleteImageView: ImageView = view.findViewById(R.id.delete_image_view)
-
+        // set text
         termTextView.text = vocabulary.term
         definitionTextView.text = vocabulary.definition
-
+        // set event
         deleteImageView.setOnClickListener {
             list.removeIf { v -> v.id == vocabulary.id }
             linearLayout.removeView(view)
@@ -251,7 +220,10 @@ class ChangeTopicActivity : AppCompatActivity() {
             }
             return@setOnLongClickListener true
         }
-
+        // add to ui
         linearLayout.addView(view)
     }
 }
+
+
+

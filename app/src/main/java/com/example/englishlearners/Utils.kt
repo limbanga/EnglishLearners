@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit
 
 class Utils {
     companion object {
-        fun timestampToDate(timestamp: Long): String {
+        private fun timestampToDate(timestamp: Long): String {
             val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
             val date = Date(timestamp)
             return dateFormat.format(date)
