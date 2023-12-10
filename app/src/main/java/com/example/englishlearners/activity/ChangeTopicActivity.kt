@@ -63,41 +63,40 @@ class ChangeTopicActivity : AppCompatActivity() {
         firebaseUser = MainActivity.getFireBaseUser(this)
 
         // set event
+
         saveChangeButton.setOnClickListener {
-            if (topicId.isBlank()) {
+            if (topicId.isBlank()) { // add
                 lifecycleScope.launch {
                     val topicToAdd = reverseBindingTopic(topic)
+                    val addedTopic = FirebaseService.addTopic(topicToAdd, 0)
 
-                    val addedTopic = FirebaseService.adddTopic(topicToAdd, 0)
-
-                    if (addedTopic != null) {
-                        Toast.makeText(this@ChangeTopicActivity, "Thêm thành công.", Toast.LENGTH_SHORT)
-                            .show()
-                    } else {
-                        Toast.makeText(this@ChangeTopicActivity, "Thêm không thành công.", Toast.LENGTH_SHORT)
-                            .show()
+                    if (addedTopic == null) {
+                        showToast("Thêm không thành công.")
+                        return@launch
                     }
-                }
-            } else {
-                lifecycleScope.launch {
-                    val topicToUpdate = reverseBindingTopic(topic)
 
-//                  val vocabularies: ArrayList<Vocabulary>? = ... // Lấy danh sách từ vựng từ nơi nào đó
-                    val vocabularyCount = 0L
-//                  vocabularies?.size ?: 0 // Tính toán vocabularyCount từ danh sách từ vựng
-
-                    val updatedTopic = FirebaseService.updateTopic(topicToUpdate, vocabularyCount)
-                    if (updatedTopic != null) {
-                        Toast.makeText(this@ChangeTopicActivity, "Cập nhật thành công.", Toast.LENGTH_SHORT)
-                            .show()
+                    // update vocabulary
+                    val result = FirebaseService.addVocabulariesToDatabase(list, addedTopic.id)
+                    if (result) {
+                        showToast("Thêm thành công.")
                     } else {
-                        Toast.makeText(this@ChangeTopicActivity, "Cập nhật không thành công.", Toast.LENGTH_SHORT)
-                            .show()
+                        showToast("Thêm không thành công.")
                     }
-                }
 
+                }
+                return@setOnClickListener
+            }
+
+            lifecycleScope.launch {
+                val topicToUpdate = reverseBindingTopic(topic)
+                val vocabularyCount = 0L
+
+                val updatedTopic = FirebaseService.updateTopic(topicToUpdate, vocabularyCount)
+                val successMessage = if (updatedTopic != null) "Cập nhật thành công." else "Cập nhật không thành công."
+                showToast(successMessage)
             }
         }
+
 
         backButton.setOnClickListener {
             finish()
@@ -146,6 +145,12 @@ class ChangeTopicActivity : AppCompatActivity() {
             descEditText.visibility = View.VISIBLE
         }
     }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this@ChangeTopicActivity, message, Toast.LENGTH_SHORT).show()
+    }
+
+
 
     // Lấy thông tin từ ui đưa vào topic
     private fun reverseBindingTopic(topic: Topic?): Topic {

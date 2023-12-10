@@ -4,4 +4,5 @@ data class Vocabulary(
     var id: String = "",
     var term: String = "",
     var definition: String = "",
+    val topicId: String ="",
 )

@@ -11,13 +11,36 @@ import kotlinx.coroutines.tasks.await
 object FirebaseService {
     private val database = FirebaseDatabase.getInstance()
 
+
+    suspend fun addVocabulariesToDatabase(vocabularies: ArrayList<Vocabulary>, topicId: String): Boolean {
+        return try {
+            val reference = database.getReference(AppConst.KEY_VOCABULARY)
+
+            for (vocabulary in vocabularies) {
+                // format data
+                 val data = mapOf(
+                     "term" to vocabulary.term,
+                     "definition" to vocabulary.definition,
+                     "topicId" to topicId,
+                 )
+                reference.push().setValue(data).await()
+            }
+
+            true // Trả về true nếu thêm thành công
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false // Trả về false nếu có lỗi xảy ra
+        }
+    }
+
+
+
     suspend fun getVocabularies(topicId: String): ArrayList<Vocabulary> {
         return try {
-            val myRef = database.getReference(AppConst.KEY_TOPIC).child(topicId)
-                .child(AppConst.KEY_VOCABULARY)
-            val dataSnapshot = myRef.get().await()
-
+            val myRef = database.getReference(AppConst.KEY_VOCABULARY)
+            val dataSnapshot = myRef.orderByChild("topicId").equalTo(topicId).get().await()
             val vocabList = ArrayList<Vocabulary>()
+
             for (snapshot in dataSnapshot.children) {
                 val itemValue = snapshot.getValue(Vocabulary::class.java)
                 val itemKey = snapshot.key.toString()
@@ -81,7 +104,7 @@ object FirebaseService {
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun adddTopic(topic: Topic, vocabularyCount: Long): Topic? {
+    suspend fun addTopic(topic: Topic, vocabularyCount: Long): Topic? {
         return suspendCancellableCoroutine { continuation ->
             val myRef = database.getReference(AppConst.KEY_TOPIC)
             val newRef = myRef.push()
@@ -99,6 +122,7 @@ object FirebaseService {
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         // Thêm thành công, trả về topic
+                        topic.id = newRef.key.toString()
                         continuation.resume(topic, null)
                     } else {
                         // Thất bại, trả về null
