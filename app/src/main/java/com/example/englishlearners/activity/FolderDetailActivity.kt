@@ -4,24 +4,26 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.englishlearners.AppConst
+import com.example.englishlearners.FirebaseService
 import com.example.englishlearners.R
 import com.example.englishlearners.fragment.TopicFragment
-import com.example.englishlearners.model.AppUser
 import com.example.englishlearners.model.Folder
-import com.example.englishlearners.model.Topic
-import com.example.englishlearners.model.Vocabulary
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.launch
 
 class FolderDetailActivity : AppCompatActivity() {
 
@@ -37,6 +39,7 @@ class FolderDetailActivity : AppCompatActivity() {
     private lateinit var folderNameTextView: TextView
     private lateinit var displayNameTextView: TextView
     private lateinit var openActionMenuImageView: ImageView
+    private lateinit var backButton: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,46 +57,47 @@ class FolderDetailActivity : AppCompatActivity() {
         folderNameTextView = findViewById(R.id.folder_name_text_view)
         displayNameTextView = findViewById(R.id.display_name_text_view)
         openActionMenuImageView = findViewById(R.id.open_menu_btn)
-        // load data
-        loadData()
+        backButton = findViewById(R.id.back_btn)
         // add topic fragment
         val fragmentManager = supportFragmentManager
         val transaction = fragmentManager.beginTransaction()
         val fragment = TopicFragment(folderId)
         transaction.replace(R.id.list, fragment)
         transaction.commit()
+        // set event
+        backButton.setOnClickListener {
+            finish()
+        }
 
         openActionMenuImageView.setOnClickListener {
             openBottomDialog()
         }
-
+        // load data
+        loadData()
     }
 
     private fun loadData() {
+        lifecycleScope.launch {
+            val result = FirebaseService.getFolder(folderId)
 
-        val myRef = database.getReference(AppConst.KEY_FOLDER).child(folderId)
-
-        myRef.get().addOnSuccessListener { documentSnapshot ->
-            if (!documentSnapshot.exists()) {
-                Toast.makeText(this, "Folder không tồn tại.", Toast.LENGTH_SHORT)
+            if (result == null) {
+                // Xử lý khi folder không tồn tại
+                Toast.makeText(this@FolderDetailActivity, "Folder không tồn tại.", Toast.LENGTH_SHORT)
                     .show()
                 finish()
+                return@launch
             }
-            folder = documentSnapshot.getValue(Folder::class.java) as Folder
-            val userRef = database.getReference(AppConst.KEY_USER).child(folder.ownerId)
-            userRef.get().addOnSuccessListener { userSnapshot ->
-                if (!userSnapshot.exists()) {
-                    Toast.makeText(this, "Owner không tồn tại.", Toast.LENGTH_SHORT)
-                        .show()
-                    finish()
-                }
-                folder.owner = userSnapshot.getValue(AppUser::class.java)
-                bindingData()
+            // get owner
+            val owner = FirebaseService.getUser(result.ownerId)
+            if (owner != null){
+                result.owner = owner
             }
+            bindingFolder(result)
         }
     }
 
-    private fun bindingData() {
+    private fun bindingFolder(folder: Folder) {
+        this.folder = folder
         folderNameTextView.text = folder.name
         displayNameTextView.text = folder.owner?.displayName
     }
@@ -150,10 +154,10 @@ class FolderDetailActivity : AppCompatActivity() {
 //            sheetDialog.dismiss()
         }
 
-        openAddButton.setOnClickListener{
+        openAddButton.setOnClickListener {
             sheetDialog.dismiss()
             val intent = Intent(this, AddTopicToFolderActivity::class.java)
-            //intent.putExtra(ChangeTopicActivity.KEY_TOPIC_ID, topicId)
+            intent.putExtra(AddTopicToFolderActivity.KEY_FOLDER_ID, folderId)
             startActivity(intent)
         }
 

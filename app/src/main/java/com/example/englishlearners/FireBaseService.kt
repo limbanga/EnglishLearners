@@ -1,24 +1,24 @@
 package com.example.englishlearners
 
 import android.util.Log
-import com.example.englishlearners.model.AppUser
-import com.example.englishlearners.model.Folder
-import com.example.englishlearners.model.Topic
-import com.example.englishlearners.model.Vocabulary
+import com.example.englishlearners.model.*
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.*
+import java.util.concurrent.atomic.AtomicInteger
+
 
 object FirebaseService {
+    private val ioScope = CoroutineScope(Dispatchers.IO)
     private val database = FirebaseDatabase.getInstance()
 
     suspend fun getUser(userId: String): AppUser? {
@@ -59,6 +59,28 @@ object FirebaseService {
                     continuation.resume(folder) // Trả về folder khi thành công
                 }
             }
+        }
+    }
+
+
+    suspend fun getFolder(folderId: String): Folder? {
+        return suspendCancellableCoroutine { continuation ->
+            val myRef = database.getReference(AppConst.KEY_FOLDER).child(folderId)
+
+            myRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    if (!dataSnapshot.exists()) {
+                        continuation.resume(null) // Trả về null nếu không tồn tại
+                    } else {
+                        val folder = dataSnapshot.getValue(Folder::class.java) as Folder
+                        continuation.resume(folder) // Trả về folder nếu tồn tại
+                    }
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {
+                    continuation.resumeWithException(databaseError.toException())
+                }
+            })
         }
     }
 
@@ -114,13 +136,77 @@ object FirebaseService {
 
     suspend fun getTopicsByFolderId(folderId: String): ArrayList<Topic> {
         return suspendCoroutine { continuation ->
+            val topicsFoldersRef = database.getReference("topics_folders")
+            val topicsList = ArrayList<Topic>()
+
+            val valueEventListener = object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    val topicIds = ArrayList<String>()
+
+                    for (snapshot in dataSnapshot.children) {
+                        val topicFolder = snapshot.getValue(TopicFolder::class.java)
+                        if (topicFolder != null && topicFolder.folderId == folderId) {
+                            val topicId = topicFolder.topicId
+                            topicIds.add(topicId)
+                        }
+                    }
+
+                    val processedCount = AtomicInteger(0)
+
+                    for (topicId in topicIds) {
+                        // Sử dụng ioScope để chạy công việc trong coroutine scope
+                        ioScope.launch {
+                            val topic = getTopic(topicId)
+                            if (topic != null) {
+                                topicsList.add(topic)
+                            }
+
+                            val count = processedCount.incrementAndGet()
+                            if (count == topicIds.size) {
+                                continuation.resume(topicsList)
+                            }
+                        }
+                    }
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {
+                    continuation.resumeWithException(databaseError.toException())
+                }
+            }
+
+            topicsFoldersRef.addListenerForSingleValueEvent(valueEventListener)
+        }
+    }
+
+    fun addTopicsToFolder(topics: ArrayList<Topic>, folderId: String): Boolean {
+        val databaseRef = database.getReference(AppConst.KEY_TOPICS_FOLDERS)
+        var allTopicsAddedSuccessfully = true
+
+        for (topic in topics) {
+            val newTopicFolderRef = databaseRef.push()
+            val topicFolderMap = mapOf(
+                "topicId" to topic.id,
+                "folderId" to folderId
+            )
+
+            newTopicFolderRef.setValue(topicFolderMap)
+                .addOnFailureListener {
+                    allTopicsAddedSuccessfully = false
+                }
+        }
+
+        return allTopicsAddedSuccessfully
+    }
+    suspend fun getTopicsByOwnerId(ownerId: String): ArrayList<Topic> {
+        return suspendCoroutine { continuation ->
             val topicsRef = database.getReference(AppConst.KEY_TOPIC)
             val topicsList = ArrayList<Topic>()
             val valueEventListener = object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     for (snapshot in dataSnapshot.children) {
                         val topic = snapshot.getValue(Topic::class.java)
-                        if (topic != null && topic.folderId == folderId) {
+                        if (topic != null && topic.ownerId == ownerId) {
+                            topic.id =  snapshot.key.toString()
                             topicsList.add(topic)
                         }
                     }
@@ -135,6 +221,7 @@ object FirebaseService {
             topicsRef.addListenerForSingleValueEvent(valueEventListener)
         }
     }
+
     suspend fun getVocabularies(topicId: String): ArrayList<Vocabulary> {
         return try {
             val myRef = database.getReference(AppConst.KEY_VOCABULARY)

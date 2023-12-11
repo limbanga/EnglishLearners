@@ -6,4 +6,5 @@ data class Folder(
     var desc: String = "",
     var ownerId: String = "",
     var owner: AppUser? = null,
+    var topics: ArrayList<Topic>? = null,
 )

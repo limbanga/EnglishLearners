@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:paddingHorizontal="10dp"
     tools:context=".activity.ChangeTopicActivity">
-
+    <!-- App bar-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -68,17 +68,17 @@
         android:id="@+id/topic_desc_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
         android:hint="@string/desc_hint"
         android:textSize="22sp"
-        android:layout_marginBottom="10dp"
         android:visibility="gone" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/term_text"
-        android:textSize="22sp"
-        android:textColor="@color/black"/>
+        android:textColor="@color/black"
+        android:textSize="22sp" />
 
     <!--Vocabulary item -->
     <LinearLayout

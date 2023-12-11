@@ -8,8 +8,6 @@ data class Topic(
     var desc: String = "",
     var ownerId: String = "",
     var owner: AppUser? = null,
-    var folderId: String = "",
-    var folder: Folder? = null,
     var vocabularyCount: Long = 0,
     var created: Long = 0,
     var updated: Long = 0,
