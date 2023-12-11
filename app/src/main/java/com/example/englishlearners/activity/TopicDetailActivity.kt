@@ -5,24 +5,24 @@ import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
+import androidx.lifecycle.lifecycleScope
 import com.example.englishlearners.AppConst
+import com.example.englishlearners.FirebaseService
 import com.example.englishlearners.R
-import com.example.englishlearners.model.AppUser
 import com.example.englishlearners.model.Topic
 import com.example.englishlearners.model.Vocabulary
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class TopicDetailActivity : AppCompatActivity() {
@@ -32,6 +32,7 @@ class TopicDetailActivity : AppCompatActivity() {
 
     private lateinit var topicId: String
     private lateinit var topic: Topic
+    private lateinit var list: ArrayList<Vocabulary>
 
     private var textToSpeech: TextToSpeech? = null
     private val database = Firebase.database
@@ -98,55 +99,35 @@ class TopicDetailActivity : AppCompatActivity() {
         loadData()
     }
 
-    private fun loadData() {
-        val myRef = database.getReference(AppConst.KEY_TOPIC).child(topicId)
-        myRef.get().addOnSuccessListener { documentSnapshot ->
-            if (!documentSnapshot.exists()) {
-                Toast.makeText(this, "Topic không tồn tại.", Toast.LENGTH_SHORT)
-                    .show()
-                finish()
-            }
-            topic = documentSnapshot.getValue(Topic::class.java) as Topic
-            val userRef =  database.getReference(AppConst.KEY_USER).child(topic.ownerId)
-            userRef.get().addOnSuccessListener { userSnapshot ->
-                if (!userSnapshot.exists()) {
-                    Toast.makeText(this, "Owner không tồn tại.", Toast.LENGTH_SHORT)
-                        .show()
-                    finish()
-                }
-                topic.owner = userSnapshot.getValue(AppUser::class.java)
-                bindingData()
-            }
-        }
-        // get list vocabulary
-        val listVocab = myRef.child(AppConst.KEY_VOCABULARY)
-        listVocab.addValueEventListener(object : ValueEventListener {
-
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                // remove all view before add
-                linearLayout.removeAllViews()
-
-                for (snapshot in dataSnapshot.children) {
-
-                    val itemValue = snapshot.getValue(Vocabulary::class.java)
-                    val itemKey = snapshot.key.toString()
-
-                    if (itemValue != null) {
-                        itemValue.id = itemKey
-                        initCard(itemValue)
-                    } else {
-                        Log.d(AppConst.DEBUG_TAG, itemKey + "is null")
-                    }
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e(AppConst.DEBUG_TAG, "Failed to read value.", error.toException())
-            }
-        })
+    override fun onDestroy() {
+        textToSpeech?.shutdown()
+        super.onDestroy()
     }
 
-    private fun bindingData() {
+    private fun loadData() {
+        lifecycleScope.launch {
+            val topic = FirebaseService.getTopic(topicId) ?: run {
+                Toast.makeText(this@TopicDetailActivity, "Topic không tồn tại.", Toast.LENGTH_SHORT)
+                    .show()
+                finish()
+                return@launch
+            }
+
+            bindingTopic(topic)
+            val result = FirebaseService.getVocabularies(topicId)
+            bindingVocabularies(result)
+        }
+    }
+
+    private fun bindingVocabularies(result: ArrayList<Vocabulary>) {
+        this.list = result
+        result.forEach {
+            setCardView(it)
+        }
+    }
+
+    private fun bindingTopic(topic: Topic) {
+        this.topic = topic
         titleTextView.text = topic.title
         displayNameTextView.text = topic.owner?.displayName
         if (topic.desc.isEmpty()) {
@@ -156,7 +137,7 @@ class TopicDetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun initCard(vocabulary: Vocabulary) {
+    private fun setCardView(vocabulary: Vocabulary) {
         val view: View = layoutInflater.inflate(R.layout.item_vocabulary_view, linearLayout, false)
         // map view
         val termTextView: TextView = view.findViewById(R.id.term_text_view)
@@ -179,10 +160,6 @@ class TopicDetailActivity : AppCompatActivity() {
         linearLayout.addView(view)
     }
 
-    override fun onDestroy() {
-        textToSpeech?.shutdown()
-        super.onDestroy()
-    }
 
     @SuppressLint("InflateParams")
     private fun openBottomDialog() {
@@ -213,10 +190,26 @@ class TopicDetailActivity : AppCompatActivity() {
             val cancelButton: Button = view1.findViewById(R.id.cancel_button)
 
             okButton.setOnClickListener {
-                handleDelete()
                 dialog.dismiss()
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
+                lifecycleScope.launch {
+                    val deleteResult = FirebaseService.deleteTopic(topicId)
+
+                    if (deleteResult) {
+                        Toast.makeText(
+                            this@TopicDetailActivity,
+                            "Xóa bản ghi thành công",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        val intent = Intent(this@TopicDetailActivity, MainActivity::class.java)
+                        startActivity(intent)
+                    } else {
+                        Toast.makeText(
+                            this@TopicDetailActivity,
+                            "Xóa bản ghi thất bại",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
             }
 
             cancelButton.setOnClickListener {
@@ -237,19 +230,5 @@ class TopicDetailActivity : AppCompatActivity() {
         }
 
         sheetDialog.show()
-
-    }
-
-    private fun handleDelete() {
-        val myRef = database.getReference(AppConst.KEY_TOPIC).child(topicId)
-        myRef.removeValue().addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                Toast.makeText(this, "Xóa bản ghi thành công", Toast.LENGTH_SHORT).show()
-                finish()
-            } else {
-                Toast.makeText(this, "Xóa bản ghi thất bại. ${task.exception}", Toast.LENGTH_SHORT)
-                    .show()
-            }
-        }
     }
 }

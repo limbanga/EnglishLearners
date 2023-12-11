@@ -77,6 +77,17 @@ object FirebaseService {
         }
     }
 
+    suspend fun deleteTopic(topicId: String): Boolean {
+        return try {
+            val myRef = database.getReference(AppConst.KEY_TOPIC).child(topicId)
+            myRef.removeValue().await()
+            true // Trả về true khi xóa thành công
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false // Trả về false khi xảy ra lỗi
+        }
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
      suspend fun updateTopic(topic: Topic, vocabularyCount: Long = 0): Topic? {
         return suspendCancellableCoroutine { continuation ->

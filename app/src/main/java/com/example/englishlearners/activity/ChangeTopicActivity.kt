@@ -150,8 +150,6 @@ class ChangeTopicActivity : AppCompatActivity() {
         Toast.makeText(this@ChangeTopicActivity, message, Toast.LENGTH_SHORT).show()
     }
 
-
-
     // Lấy thông tin từ ui đưa vào topic
     private fun reverseBindingTopic(topic: Topic?): Topic {
         var result = topic

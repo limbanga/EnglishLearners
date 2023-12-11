@@ -10,6 +10,9 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.englishlearners.AppConst
@@ -129,7 +132,7 @@ class TopicFragment(private var folderId: String? = null) : Fragment() {
                         }
                         // If all topics are fetched, initialize cards
                         if (topics.size == dataSnapshot.childrenCount.toInt()) {
-                            fetchOwners(topics)
+                           // fetchOwners(topics)
                         }
                     }.addOnFailureListener { exception ->
                         Log.e(AppConst.DEBUG_TAG, "Error fetching topic: $exception")
@@ -147,92 +150,74 @@ class TopicFragment(private var folderId: String? = null) : Fragment() {
         })
     }
 
-    private fun fetchOwners(topics: List<Topic>) {
-        lifecycleScope.launch {
-            val topicWithOwners = mutableListOf<Pair<Topic, AppUser?>>()
+    private suspend fun getUser(userId: String): AppUser? {
+        return try {
+            val myRef = database.getReference(AppConst.KEY_USER).child(userId)
+            val snapshot = myRef.get().await()
 
-            topics.forEach { topic ->
-                val userRef =
-                    database.getReference(AppConst.KEY_USER).child(topic.ownerId).get().await()
-                val userSnapshot = userRef
-
-                val owner = if (userSnapshot.exists()) {
-                    userSnapshot.getValue(AppUser::class.java)
-                } else {
-                    null
-                }
-
-                topicWithOwners.add(topic to owner)
+            if (snapshot.exists()) {
+                val user = snapshot.getValue(AppUser::class.java)
+                user
+            } else {
+                null
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
 
-            topicWithOwners.forEach { (topic, owner) ->
-                topic.owner = owner
-                initCard(topic)
+
+
+    private fun loadData() {
+        lifecycleScope.launch {
+            try {
+                val topicsList = loadTopicsFromFirebase()
+
+                topicsList.forEach {
+                    val user = getUser(it.ownerId)
+                    if (user != null){
+                        it.owner = user
+                        setCardView(it)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("Firebase", "Error loading topics: ${e.message}")
             }
         }
     }
 
 
-    private fun loadData() {
-        val myRef = database.getReference(AppConst.KEY_TOPIC).orderByChild("updated")
+    private suspend fun loadTopicsFromFirebase(): ArrayList<Topic> {
+        return suspendCoroutine { continuation ->
+            val topicsList = ArrayList<Topic>()
+            val myRef = database.getReference(AppConst.KEY_TOPIC)
 
-        myRef.addValueEventListener(object : ValueEventListener {
+            myRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    for (snapshot in dataSnapshot.children.reversed()) {
+                        val itemValue = snapshot.getValue(Topic::class.java)
+                        val itemKey = snapshot.key.toString()
 
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                // remove all view before add
-                linearLayout.removeAllViews()
-
-                for (snapshot in dataSnapshot.children.reversed()) {
-
-                    val itemValue = snapshot.getValue(Topic::class.java)
-                    val itemKey = snapshot.key.toString()
-
-                    if (itemValue != null) {
-                        itemValue.id = itemKey
-                        // lay ten ben khoa ngoai
-                        val userRef =
-                            database.getReference(AppConst.KEY_USER).child(itemValue.ownerId)
-
-                        userRef.addValueEventListener(object : ValueEventListener {
-                            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                                val appUser: AppUser? = dataSnapshot.getValue(AppUser::class.java)
-                                if (appUser != null) {
-                                    appUser.id = dataSnapshot.key.toString()
-                                    itemValue.owner = appUser
-                                    initCard(itemValue)
-                                } else {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        "owner is null",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
-                            }
-
-                            override fun onCancelled(databaseError: DatabaseError) {
-                                Log.d(AppConst.DEBUG_TAG, "Khong the doc owner")
-                            }
-                        })
-
-                    } else {
-                        Log.d(AppConst.DEBUG_TAG, itemKey + "is null")
+                        if (itemValue != null) {
+                            itemValue.id = itemKey
+                            topicsList.add(itemValue)
+                        } else {
+                            Log.d(AppConst.DEBUG_TAG, "$itemKey is null")
+                        }
                     }
+                    continuation.resume(topicsList)
                 }
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                Log.e(
-                    AppConst.DEBUG_TAG,
-                    "Failed to read value.${error.message}",
-                    error.toException()
-                )
-            }
-        })
-
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e(AppConst.DEBUG_TAG, "Failed to read value. ${error.message}", error.toException())
+                    continuation.resumeWithException(error.toException())
+                }
+            })
+        }
     }
-
     @SuppressLint("SetTextI18n")
-    private fun initCard(topic: Topic) {
+    private fun setCardView(topic: Topic) {
         if (!isAdded) {
             return
         }
