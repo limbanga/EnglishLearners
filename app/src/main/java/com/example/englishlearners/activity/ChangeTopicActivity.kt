@@ -76,7 +76,7 @@ class ChangeTopicActivity : AppCompatActivity() {
                     }
 
                     // update vocabulary
-                    val result = FirebaseService.addVocabulariesToDatabase(list, addedTopic.id)
+                    val result = FirebaseService.addVocabularies(list, addedTopic.id)
                     if (result) {
                         showToast("Thêm thành công.")
                     } else {

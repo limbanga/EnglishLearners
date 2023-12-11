@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -13,17 +14,23 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.englishlearners.AppConst
+import com.example.englishlearners.FirebaseService
 import com.example.englishlearners.fragment.HomeFragment
 import com.example.englishlearners.R
+import kotlin.coroutines.resume
 import com.example.englishlearners.fragment.LibraryFragment
 import com.example.englishlearners.fragment.ProfileFragment
+import com.example.englishlearners.model.Folder
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import kotlin.coroutines.suspendCoroutine
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity() {
@@ -34,14 +41,14 @@ class MainActivity : AppCompatActivity() {
             var firebaseUser: FirebaseUser? = null
 
             firebaseUser = mAuth.currentUser
-            if (firebaseUser == null) {
+            return if (firebaseUser == null) {
                 // User is not logged in
                 Toast.makeText(context, "Vui lòng đăng nhập.", Toast.LENGTH_LONG).show()
                 val intent = Intent(context, LoginActivity::class.java)
                 context.startActivity(intent)
-                return null
+                null
             } else {
-                return firebaseUser
+                firebaseUser
             }
         }
 
@@ -107,26 +114,30 @@ class MainActivity : AppCompatActivity() {
             }
 
             okButton.setOnClickListener {
-                val database = Firebase.database
-                //
-                val myRef = database.getReference(AppConst.KEY_FOLDER)
-                val newRef = myRef.push()
-                val data = mapOf(
-                    "name" to nameEditText.text.toString(),
-                    "desc" to descEditText.text.toString(),
-                    "ownerId" to firebaseUser!!.uid,
-                    "created" to System.currentTimeMillis(),
-                    "updated" to System.currentTimeMillis(),
-                )
-                newRef.setValue(data)
-                { databaseError, _ ->
-                    if (databaseError != null) {
-                        Toast.makeText(this, "Có lỗi xảy ra.", Toast.LENGTH_LONG).show()
-                    } else {
-                        Toast.makeText(this, "Tạo thư mục thành công!", Toast.LENGTH_LONG).show()
+                // nested fun
+                fun reverseBindingFolder(folder: Folder? = null) : Folder {
+                    val result = folder ?: Folder()
+                    result.name = nameEditText.text.toString()
+                    result.desc = descEditText.text.toString()
+                    result.ownerId = firebaseUser!!.uid
+                    return result
+                }
+
+                lifecycleScope.launch {
+                    val folderToAdd = reverseBindingFolder()
+
+                    val addedFolder = FirebaseService.addFolder(folderToAdd)
+
+                    if (addedFolder != null) {
+                        Log.d("Added Folder", "Added folder with ID: ${addedFolder.id}")
+                        Toast.makeText(this@MainActivity, "Tạo thư mục thành công!", Toast.LENGTH_LONG).show()
                         folderDialog.dismiss()
+                    } else {
+                        Log.d("Added Folder", "Failed to add folder")
+                        Toast.makeText(this@MainActivity, "Tạo thư mục không thành công.", Toast.LENGTH_LONG).show()
                     }
                 }
+
             }
 
             folderDialog.show()

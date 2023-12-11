@@ -1,18 +1,68 @@
 package com.example.englishlearners
 
 import android.util.Log
+import com.example.englishlearners.model.AppUser
+import com.example.englishlearners.model.Folder
 import com.example.englishlearners.model.Topic
 import com.example.englishlearners.model.Vocabulary
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 object FirebaseService {
     private val database = FirebaseDatabase.getInstance()
 
+    suspend fun getUser(userId: String): AppUser? {
+        return try {
+            val myRef = database.getReference(AppConst.KEY_USER).child(userId)
+            val snapshot = myRef.get().await()
 
-    suspend fun addVocabulariesToDatabase(vocabularies: ArrayList<Vocabulary>, topicId: String): Boolean {
+            if (snapshot.exists()) {
+                val user = snapshot.getValue(AppUser::class.java)
+                user
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    suspend fun addFolder(folder: Folder): Folder? {
+        return suspendCoroutine { continuation ->
+            val database = Firebase.database
+            val myRef = database.getReference(AppConst.KEY_FOLDER)
+            val newRef = myRef.push()
+
+            val data = mapOf(
+                "name" to folder.name,
+                "desc" to folder.desc,
+                "ownerId" to folder.ownerId,
+                "created" to System.currentTimeMillis(),
+                "updated" to System.currentTimeMillis(),
+            )
+
+            newRef.setValue(data) { databaseError, _ ->
+                if (databaseError != null) {
+                    continuation.resume(null) // Trả về null khi thất bại
+                } else {
+                    continuation.resume(folder) // Trả về folder khi thành công
+                }
+            }
+        }
+    }
+
+    suspend fun addVocabularies(vocabularies: ArrayList<Vocabulary>, topicId: String): Boolean {
         return try {
             val reference = database.getReference(AppConst.KEY_VOCABULARY)
 
@@ -33,8 +83,58 @@ object FirebaseService {
         }
     }
 
+    suspend fun getTopics(): ArrayList<Topic> {
+        return suspendCoroutine { continuation ->
+            val topicsList = ArrayList<Topic>()
+            val myRef = database.getReference(AppConst.KEY_TOPIC)
 
+            myRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    for (snapshot in dataSnapshot.children.reversed()) {
+                        val itemValue = snapshot.getValue(Topic::class.java)
+                        val itemKey = snapshot.key.toString()
 
+                        if (itemValue != null) {
+                            itemValue.id = itemKey
+                            topicsList.add(itemValue)
+                        } else {
+                            Log.d(AppConst.DEBUG_TAG, "$itemKey is null")
+                        }
+                    }
+                    continuation.resume(topicsList)
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e(AppConst.DEBUG_TAG, "Failed to read value. ${error.message}", error.toException())
+                    continuation.resumeWithException(error.toException())
+                }
+            })
+        }
+    }
+
+    suspend fun getTopicsByFolderId(folderId: String): ArrayList<Topic> {
+        return suspendCoroutine { continuation ->
+            val topicsRef = database.getReference(AppConst.KEY_TOPIC)
+            val topicsList = ArrayList<Topic>()
+            val valueEventListener = object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    for (snapshot in dataSnapshot.children) {
+                        val topic = snapshot.getValue(Topic::class.java)
+                        if (topic != null && topic.folderId == folderId) {
+                            topicsList.add(topic)
+                        }
+                    }
+                    continuation.resume(topicsList)
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {
+                    continuation.resumeWithException(databaseError.toException())
+                }
+            }
+
+            topicsRef.addListenerForSingleValueEvent(valueEventListener)
+        }
+    }
     suspend fun getVocabularies(topicId: String): ArrayList<Vocabulary> {
         return try {
             val myRef = database.getReference(AppConst.KEY_VOCABULARY)
