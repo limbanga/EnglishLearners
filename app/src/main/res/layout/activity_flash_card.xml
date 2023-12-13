@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="20dp"
+    android:background="#f6effa"
     tools:context=".activity.FlashCardActivity">
 
     <TextView
@@ -17,28 +18,49 @@
         android:layout_marginBottom="10dp"/>
 
     <androidx.cardview.widget.CardView
-        android:layout_weight="1"
+        android:id="@+id/cardview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:elevation="6dp"
-        app:cardCornerRadius="6dp">
 
-        <LinearLayout
-            android:padding="10dp"
-            android:orientation="vertical"
+        app:cardCornerRadius="30dp">
+        <ViewFlipper
+            android:id="@+id/flipper"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center">
+            android:layout_height="400dp">
+            <LinearLayout
+                android:padding="10dp"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center">
+                <TextView
+                    android:id="@+id/txt_content"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="32sp"
+                    android:textColor="@color/black"
+                    android:text="Cat"/>
+            </LinearLayout>
+            <LinearLayout
+                android:padding="10dp"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="32sp"
-                android:textColor="@color/black"
-                android:text="Cat"/>
+                <TextView
+                    android:id="@+id/txt_back"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="32sp"
+                    android:textColor="@color/black"
+                    android:text="Definition" />
+
+            </LinearLayout>
 
 
-        </LinearLayout>
+        </ViewFlipper>
 
 
     </androidx.cardview.widget.CardView>
@@ -63,6 +85,28 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="next"/>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_marginVertical="20dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/baseline_headphones_24">
+
+        </ImageView>
+
+        <TextView
+            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+
 
     </LinearLayout>
 
