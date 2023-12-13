@@ -38,6 +38,33 @@ object FirebaseService {
         }
     }
 
+    suspend fun removeTopicFromFolder(folderId: String): Boolean {
+        return suspendCoroutine { continuation ->
+            val topicsFoldersRef = FirebaseDatabase.getInstance().getReference("topics_folders")
+            val query = topicsFoldersRef.orderByChild("folderId").equalTo(folderId)
+
+            query.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    var deletedAll = true
+
+                    for (snapshot in dataSnapshot.children) {
+                        snapshot.ref.removeValue().addOnCompleteListener { task ->
+                            if (!task.isSuccessful) {
+                                deletedAll = false
+                            }
+                        }
+                    }
+
+                    continuation.resume(deletedAll)
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {
+                    continuation.resume(false)
+                }
+            })
+        }
+    }
+
     suspend fun addFolder(folder: Folder): Folder? {
         return suspendCoroutine { continuation ->
             val database = Firebase.database
@@ -61,7 +88,6 @@ object FirebaseService {
             }
         }
     }
-
 
     suspend fun getFolder(folderId: String): Folder? {
         return suspendCancellableCoroutine { continuation ->
@@ -136,7 +162,7 @@ object FirebaseService {
 
     suspend fun getTopicsByFolderId(folderId: String): ArrayList<Topic> {
         return suspendCoroutine { continuation ->
-            val topicsFoldersRef = database.getReference("topics_folders")
+            val topicsFoldersRef = database.getReference(AppConst.KEY_TOPICS_FOLDERS)
             val topicsList = ArrayList<Topic>()
 
             val valueEventListener = object : ValueEventListener {

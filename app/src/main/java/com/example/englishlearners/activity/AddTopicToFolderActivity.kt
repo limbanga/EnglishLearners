@@ -55,17 +55,46 @@ class AddTopicToFolderActivity : AppCompatActivity() {
         }
 
         saveButton.setOnClickListener {
-            Toast.makeText(this, "ok", Toast.LENGTH_SHORT).show()
-            val result = FirebaseService.addTopicsToFolder(selectedList, folderId)
-            if (result) {
-                Toast.makeText(this, "Lưu thay đổi thành công.", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this, "Đã xảy ra lỗi.", Toast.LENGTH_SHORT).show()
-                Toast.makeText(this, "Xin hãy kiểm tra lại.", Toast.LENGTH_SHORT).show()
-            }
-            finish()
+            lifecycleScope.launch {
+                val clearResult = FirebaseService.removeTopicFromFolder(folderId)
+                if (!clearResult) {
+                    Toast.makeText(
+                        this@AddTopicToFolderActivity,
+                        "Đã xảy ra lỗi2.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    Toast.makeText(
+                        this@AddTopicToFolderActivity,
+                        "Xin hãy kiểm tra lại.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@launch
+                }
 
+                val addResult = FirebaseService.addTopicsToFolder(selectedList, folderId)
+
+                if (addResult) {
+                    Toast.makeText(
+                        this@AddTopicToFolderActivity,
+                        "Lưu thay đổi thành công.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    Toast.makeText(
+                        this@AddTopicToFolderActivity,
+                        "Đã xảy ra lỗi.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    Toast.makeText(
+                        this@AddTopicToFolderActivity,
+                        "Xin hãy kiểm tra lại.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                finish()
+            }
         }
+
         // load data
         loadData()
     }
@@ -74,6 +103,7 @@ class AddTopicToFolderActivity : AppCompatActivity() {
     private fun loadData() {
         lifecycleScope.launch {
             try {
+                selectedList = FirebaseService.getTopicsByFolderId(folderId)
                 val topics = FirebaseService.getTopicsByOwnerId(firebaseUser!!.uid)
 
                 if (topics.isEmpty()) {
@@ -99,6 +129,9 @@ class AddTopicToFolderActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun setCardView(topic: Topic) {
+        // sửa lại màu sau
+        val lightGrey = ContextCompat.getColor(this, R.color.light_grey)
+        val white = ContextCompat.getColor(this, R.color.white)
 
         val view: View = layoutInflater
             .inflate(R.layout.item_topic, linearLayout, false)
@@ -114,16 +147,18 @@ class AddTopicToFolderActivity : AppCompatActivity() {
         displayNameTextView.text = topic.owner?.displayName
         vocabularyTextView.text = "${topic.vocabularyCount} thuật ngữ"
 
-        view.setOnClickListener {
-            // sửa lại màu sau
-            val lightGrey = ContextCompat.getColor(this, R.color.light_grey)
-            val white = ContextCompat.getColor(this, R.color.white)
+        // set back groud if selected
+        if (selectedList.any { it.id == topic.id }) {
+            layout.setBackgroundColor(lightGrey)
+        }
 
-            if (!selectedList.contains(topic)) {
+        view.setOnClickListener {
+
+            if (!selectedList.any { it.id == topic.id }) {
                 selectedList.add(topic)
                 layout.setBackgroundColor(lightGrey)
             } else {
-                selectedList.remove(topic)
+                selectedList.removeAll { it.id == topic.id }
                 layout.setBackgroundColor(white)
             }
         }

@@ -58,21 +58,26 @@ class FolderDetailActivity : AppCompatActivity() {
         displayNameTextView = findViewById(R.id.display_name_text_view)
         openActionMenuImageView = findViewById(R.id.open_menu_btn)
         backButton = findViewById(R.id.back_btn)
-        // add topic fragment
-        val fragmentManager = supportFragmentManager
-        val transaction = fragmentManager.beginTransaction()
-        val fragment = TopicFragment(folderId)
-        transaction.replace(R.id.list, fragment)
-        transaction.commit()
+
         // set event
         backButton.setOnClickListener {
             finish()
         }
-
         openActionMenuImageView.setOnClickListener {
             openBottomDialog()
         }
+
+    }
+
+    override fun onStart() {
+        super.onStart()
         // load data
+        loadData()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Toast.makeText(this, "resume", Toast.LENGTH_SHORT).show()
         loadData()
     }
 
@@ -93,7 +98,17 @@ class FolderDetailActivity : AppCompatActivity() {
                 result.owner = owner
             }
             bindingFolder(result)
+            addTopicFragment()
         }
+    }
+
+    private fun addTopicFragment() {
+        // add topic fragment
+        val fragmentManager = supportFragmentManager
+        val transaction = fragmentManager.beginTransaction()
+        val fragment = TopicFragment(folderId)
+        transaction.replace(R.id.list, fragment)
+        transaction.commit()
     }
 
     private fun bindingFolder(folder: Folder) {
