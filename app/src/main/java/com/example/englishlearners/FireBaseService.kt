@@ -21,6 +21,17 @@ object FirebaseService {
     private val ioScope = CoroutineScope(Dispatchers.IO)
     private val database = FirebaseDatabase.getInstance()
 
+
+    suspend fun deleteFolder(folderId: String): Boolean = withContext(Dispatchers.IO) {
+        return@withContext try {
+            val foldersRef = database.getReference(AppConst.KEY_FOLDER).child(folderId)
+            foldersRef.removeValue().await()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     suspend fun getUser(userId: String): AppUser? {
         return try {
             val myRef = database.getReference(AppConst.KEY_USER).child(userId)
@@ -187,6 +198,7 @@ object FirebaseService {
         return suspendCoroutine { continuation ->
             val topicsFoldersRef = database.getReference(AppConst.KEY_TOPICS_FOLDERS)
             val topicsList = ArrayList<Topic>()
+            val deferredList = mutableListOf<Deferred<Topic?>>()
 
             val valueEventListener = object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -200,21 +212,18 @@ object FirebaseService {
                         }
                     }
 
-                    val processedCount = AtomicInteger(0)
-
                     for (topicId in topicIds) {
-                        // Sử dụng ioScope để chạy công việc trong coroutine scope
-                        ioScope.launch {
-                            val topic = getTopic(topicId)
-                            if (topic != null) {
-                                topicsList.add(topic)
-                            }
-
-                            val count = processedCount.incrementAndGet()
-                            if (count == topicIds.size) {
-                                continuation.resume(topicsList)
-                            }
+                        val deferred = ioScope.async {
+                            getTopic(topicId)
                         }
+                        deferredList.add(deferred)
+                    }
+
+                    ioScope.launch {
+                        val results = deferredList.awaitAll()
+                        topicsList.addAll(results.filterNotNull())
+
+                        continuation.resume(topicsList)
                     }
                 }
 
@@ -226,6 +235,7 @@ object FirebaseService {
             topicsFoldersRef.addListenerForSingleValueEvent(valueEventListener)
         }
     }
+
 
     fun addTopicsToFolder(topics: ArrayList<Topic>, folderId: String): Boolean {
         val databaseRef = database.getReference(AppConst.KEY_TOPICS_FOLDERS)

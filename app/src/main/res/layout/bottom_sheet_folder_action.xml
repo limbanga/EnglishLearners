@@ -55,7 +55,7 @@
 
 
     <LinearLayout
-        android:id="@+id/delete_topic_button"
+        android:id="@+id/delete_folder_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical">
@@ -71,7 +71,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:paddingVertical="10dp"
-            android:text="Xóa thư múc"
+            android:text="Xóa thư mục"
             android:textColor="@color/black"
             android:textSize="24sp" />
     </LinearLayout>
