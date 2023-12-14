@@ -95,8 +95,11 @@ class TopicDetailActivity : AppCompatActivity() {
         backButton.setOnClickListener {
             finish()
         }
+    }
 
+    override fun onResume() {
         loadData()
+        super.onResume()
     }
 
     override fun onDestroy() {
@@ -121,6 +124,7 @@ class TopicDetailActivity : AppCompatActivity() {
 
     private fun bindingVocabularies(result: ArrayList<Vocabulary>) {
         this.list = result
+        linearLayout.removeAllViews()
         result.forEach {
             setCardView(it)
         }

@@ -17,15 +17,27 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val rootView = inflater.inflate(R.layout.fragment_home, container, false)
-
+        // map view
         linearLayout = rootView.findViewById(R.id.list)
 
+        return rootView
+    }
+
+    override fun onStart() {
+        loadData()
+        super.onStart()
+    }
+
+    override fun onResume() {
+        loadData()
+        super.onResume()
+    }
+
+    private fun loadData() {
         val childFragmentManager = childFragmentManager
         val transaction = childFragmentManager.beginTransaction()
         val fragment = TopicFragment()
         transaction.replace(R.id.list, fragment)
         transaction.commit()
-
-        return rootView
     }
 }

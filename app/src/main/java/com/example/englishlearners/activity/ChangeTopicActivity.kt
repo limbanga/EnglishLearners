@@ -26,6 +26,7 @@ class ChangeTopicActivity : AppCompatActivity() {
     private var topicId: String = ""
     private var topic: Topic? = null
     private var list: ArrayList<Vocabulary> = ArrayList()
+    private var deleteList: ArrayList<Vocabulary> = ArrayList()
 
     private lateinit var linearLayout: LinearLayout
     private lateinit var titleEditText: EditText
@@ -57,7 +58,6 @@ class ChangeTopicActivity : AppCompatActivity() {
             topicId = receivedIntent.getStringExtra(KEY_TOPIC_ID) as String
             Toast.makeText(this, "Update topic: $topicId", Toast.LENGTH_LONG).show()
             appTitleTextView.text = getString(R.string.update_topic_title)
-            loadData()
         }
         // get current user
         firebaseUser = MainActivity.getFireBaseUser(this)
@@ -71,29 +71,55 @@ class ChangeTopicActivity : AppCompatActivity() {
                     val addedTopic = FirebaseService.addTopic(topicToAdd, 0)
 
                     if (addedTopic == null) {
-                        showToast("Thêm không thành công.")
+                        Toast.makeText(
+                            this@ChangeTopicActivity,
+                            "Lưu không thành công.",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         return@launch
                     }
 
                     // update vocabulary
                     val result = FirebaseService.addVocabularies(list, addedTopic.id)
                     if (result) {
-                        showToast("Thêm thành công.")
+                        Toast.makeText(
+                            this@ChangeTopicActivity,
+                            "Lưu thành công.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        finish()
                     } else {
-                        showToast("Thêm không thành công.")
+                        Toast.makeText(
+                            this@ChangeTopicActivity,
+                            "Lưu không thành công.",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
 
                 }
                 return@setOnClickListener
             }
-
+            // update case
             lifecycleScope.launch {
                 val topicToUpdate = reverseBindingTopic(topic)
                 val vocabularyCount = 0L
-
                 val updatedTopic = FirebaseService.updateTopic(topicToUpdate, vocabularyCount)
-                val successMessage = if (updatedTopic != null) "Cập nhật thành công." else "Cập nhật không thành công."
-                showToast(successMessage)
+
+                if (updatedTopic == null) {
+                    Toast.makeText(
+                        this@ChangeTopicActivity,
+                        "Cập nhật không thành công.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@launch
+                }
+
+                val result = FirebaseService.addVocabularies(list, updatedTopic.id)
+                FirebaseService.deleteVocabularies(deleteList)
+                Toast.makeText(this@ChangeTopicActivity, "Cập nhật thành công.", Toast.LENGTH_SHORT)
+                    .show()
+                finish()
+
             }
         }
 
@@ -146,8 +172,10 @@ class ChangeTopicActivity : AppCompatActivity() {
         }
     }
 
-    private fun showToast(message: String) {
-        Toast.makeText(this@ChangeTopicActivity, message, Toast.LENGTH_SHORT).show()
+    override fun onResume() {
+        Toast.makeText(this, "onResume", Toast.LENGTH_SHORT).show()
+        loadData()
+        super.onResume()
     }
 
     // Lấy thông tin từ ui đưa vào topic
@@ -182,6 +210,7 @@ class ChangeTopicActivity : AppCompatActivity() {
 
     private fun bindingVocabularies(list: ArrayList<Vocabulary>) {
         this.list = list
+        linearLayout.removeAllViews()
         // set card view
         list.forEach {
             setCardView(it)
@@ -212,6 +241,7 @@ class ChangeTopicActivity : AppCompatActivity() {
         // set event
         deleteImageView.setOnClickListener {
             list.removeIf { v -> v.id == vocabulary.id }
+            deleteList.add(vocabulary)
             linearLayout.removeView(view)
         }
 

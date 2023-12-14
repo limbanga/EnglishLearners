@@ -116,12 +116,31 @@ object FirebaseService {
 
             for (vocabulary in vocabularies) {
                 // format data
-                 val data = mapOf(
-                     "term" to vocabulary.term,
-                     "definition" to vocabulary.definition,
-                     "topicId" to topicId,
-                 )
-                reference.push().setValue(data).await()
+                val data = mapOf(
+                    "term" to vocabulary.term,
+                    "definition" to vocabulary.definition,
+                    "topicId" to topicId,
+                )
+                if (vocabulary.id.isBlank()) {
+                    reference.push().setValue(data).await()
+                } else {
+                    reference.child(vocabulary.id).setValue(data).await()
+                }
+            }
+
+            true // Trả về true nếu thêm thành công
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false // Trả về false nếu có lỗi xảy ra
+        }
+    }
+
+    suspend fun deleteVocabularies(vocabularies: ArrayList<Vocabulary>): Boolean {
+        return try {
+            val reference = database.getReference(AppConst.KEY_VOCABULARY)
+
+            for (vocabulary in vocabularies) {
+                reference.child(vocabulary.id).removeValue().await()
             }
 
             true // Trả về true nếu thêm thành công
@@ -153,7 +172,11 @@ object FirebaseService {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    Log.e(AppConst.DEBUG_TAG, "Failed to read value. ${error.message}", error.toException())
+                    Log.e(
+                        AppConst.DEBUG_TAG,
+                        "Failed to read value. ${error.message}",
+                        error.toException()
+                    )
                     continuation.resumeWithException(error.toException())
                 }
             })
@@ -223,6 +246,7 @@ object FirebaseService {
 
         return allTopicsAddedSuccessfully
     }
+
     suspend fun getTopicsByOwnerId(ownerId: String): ArrayList<Topic> {
         return suspendCoroutine { continuation ->
             val topicsRef = database.getReference(AppConst.KEY_TOPIC)
@@ -232,7 +256,7 @@ object FirebaseService {
                     for (snapshot in dataSnapshot.children) {
                         val topic = snapshot.getValue(Topic::class.java)
                         if (topic != null && topic.ownerId == ownerId) {
-                            topic.id =  snapshot.key.toString()
+                            topic.id = snapshot.key.toString()
                             topicsList.add(topic)
                         }
                     }
@@ -302,7 +326,7 @@ object FirebaseService {
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-     suspend fun updateTopic(topic: Topic, vocabularyCount: Long = 0): Topic? {
+    suspend fun updateTopic(topic: Topic, vocabularyCount: Long = 0): Topic? {
         return suspendCancellableCoroutine { continuation ->
             val topicRef = database.getReference(AppConst.KEY_TOPIC)
             val nodeRef = topicRef.child(topic.id)
@@ -319,7 +343,7 @@ object FirebaseService {
             nodeRef.updateChildren(updateMap)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        continuation.resume(topic,null) // Trả về topic khi thành công
+                        continuation.resume(topic, null) // Trả về topic khi thành công
                     } else {
                         continuation.resume(null, null) // Trả về null khi thất bại
                     }
