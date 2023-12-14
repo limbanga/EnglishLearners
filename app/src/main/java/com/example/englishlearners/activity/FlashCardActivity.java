@@ -22,6 +22,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Locale;
 
 
@@ -35,35 +36,24 @@ public class FlashCardActivity extends AppCompatActivity {
     private CardView cardView;
     private TextToSpeech textToSpeech;
     private ImageView imageView;
+    private ImageView iv_previous;
+    private ImageView iv_next;
+    private ImageView iv_swap;
+    private ImageView iv_setting;
+    private int size;
+    TextView txt_status;
     private   ArrayList<Vocabulary>word = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_flash_card);
-        FlashCard("-NlK5ffZxq2IG5lk6oo8");
-
-//        viewFlipper = findViewById(R.id.flipper);
-//        cardView = findViewById(R.id.cardview);
-//
-//        viewFlipper.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (viewFlipper.getDisplayedChild() == 0) {
-//                    viewFlipper.showNext();
-//                } else {
-//
-//                    viewFlipper.showPrevious();
-//                }
-//            }
-//        });
-//        Speech("Cat");
+       //FlashCard("-NlK5ffZxq2IG5lk6oo8");
+        //getVocabularies("123456");
+        previousAndNextCard();
 
     }
-    private void showFlashCard(String term, String definition) {
-        txt_content = findViewById(R.id.txt_content);
-        txt_content.setText(term);
-    }
+
     private void getVocabularies(String topicId) {
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("vocabularies");
 
@@ -77,13 +67,13 @@ public class FlashCardActivity extends AppCompatActivity {
                     Vocabulary vocabulary = snapshot.getValue(Vocabulary.class);
                     if (vocabulary != null) {
                         vocabulary.setId(snapshot.getKey());
-                        vocabularies.add(vocabulary);
-
+                        //vocabularies.add(vocabulary);
+                        word.add(vocabulary);
                     } else {
                        showToast("null");
                     }
                 }
-                showToast(String.valueOf(vocabularies.size()));
+                //showToast(String.valueOf(word.size()));
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -113,29 +103,7 @@ public class FlashCardActivity extends AppCompatActivity {
                         showToast("null");
                     }
                 }
-                txt_content = findViewById(R.id.txt_content);
-                txt_back = findViewById(R.id.txt_back);
-                viewFlipper = findViewById(R.id.flipper);
-                cardView = findViewById(R.id.cardview);
-                txt_content.setText(vocabularies.get(0).getTerm());
-                txt_back.setText(vocabularies.get(0).getDefinition());
-                Speech(vocabularies.get(0).getTerm());
-                SpeechAutomatical(vocabularies.get(0).getTerm());
-                viewFlipper.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if (viewFlipper.getDisplayedChild() == 0) {
-                            viewFlipper.showNext();
-                            Speech(vocabularies.get(0).getDefinition());
-                            SpeechAutomatical(vocabularies.get(0).getDefinition());
-                        } else {
 
-                            viewFlipper.showPrevious();
-                            Speech(vocabularies.get(0).getTerm());
-                            SpeechAutomatical(vocabularies.get(0).getTerm());
-                        }
-                    }
-                });
 
             }
             @Override
@@ -145,6 +113,106 @@ public class FlashCardActivity extends AppCompatActivity {
         });
     }
 
+    private void showFlashCard(String term, String definition) {
+        txt_content = findViewById(R.id.txt_content);
+        txt_back = findViewById(R.id.txt_back);
+        viewFlipper = findViewById(R.id.flipper);
+        viewFlipper.setDisplayedChild(0);
+        cardView = findViewById(R.id.cardview);
+        txt_content.setText(term);
+        txt_back.setText(definition);
+        Speech(term);
+        SpeechAutomatical(term);
+        viewFlipper.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (viewFlipper.getDisplayedChild() == 0) {
+                    viewFlipper.showNext();
+                    Speech(definition);
+                    SpeechAutomatical(definition);
+                } else {
+
+                    viewFlipper.showPrevious();
+                    Speech(term);
+                    SpeechAutomatical(term);
+                }
+            }
+        });
+    }
+    private void previousAndNextCard(){
+        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("vocabularies");
+
+        // Query the data based on the "topicId"
+        //myRef.orderByChild("topicId").equalTo(topicId).addListenerForSingleValueEvent(new ValueEventListener() {
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ArrayList<Vocabulary>    vocabularies = new ArrayList<>();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Vocabulary vocabulary = snapshot.getValue(Vocabulary.class);
+                    if (vocabulary != null) {
+                        vocabulary.setId(snapshot.getKey());
+                        vocabularies.add(vocabulary);
+
+                    } else {
+                        showToast("null");
+                    }
+                }
+                iv_swap = findViewById(R.id.imv_swap_vocabulary);
+                iv_swap.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Collections.shuffle(vocabularies);
+                        showToast("mix word order");
+                        currentCardIndex = 0;
+
+                        // Update UI with the first card after shuffling
+                        showFlashCard(vocabularies.get(currentCardIndex).getTerm(), vocabularies.get(currentCardIndex).getDefinition());
+
+                        // Update the status text
+                        txt_status.setText((currentCardIndex + 1) + "/" + size);
+                    }
+                });
+                size = vocabularies.size();
+                showFlashCard(vocabularies.get(0).getTerm(),vocabularies.get(0).getDefinition());
+                iv_previous = findViewById(R.id.iv_previous);
+                iv_next = findViewById(R.id.iv_next);
+
+                txt_status = findViewById(R.id.status);
+                txt_status.setText((currentCardIndex+1)+"/"+size);
+
+                iv_next.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if(currentCardIndex < vocabularies.size()-1){
+                            currentCardIndex ++;
+                            txt_status.setText((currentCardIndex+1)+"/"+size);
+                        }
+                        showFlashCard(vocabularies.get(currentCardIndex).getTerm(),vocabularies.get(currentCardIndex).getDefinition());
+                    }
+                });
+                iv_previous.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if(currentCardIndex > 0){
+                            currentCardIndex --;
+                            txt_status.setText(currentCardIndex+"/"+size);
+                        }
+                        showFlashCard(vocabularies.get(currentCardIndex).getTerm(),vocabularies.get(currentCardIndex).getDefinition());
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        });
+
+
+
+    }
 
     private void showNextCard() {
         if (currentCardIndex < vocabularies.size() - 1) {
