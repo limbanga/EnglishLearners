@@ -136,7 +136,6 @@
             android:layout_height="wrap_content"
 
             android:src="@drawable/baseline_swap_horiz_24"
-            android:onClick="onSwapLanguageClick"
             >
 
         </ImageView>
