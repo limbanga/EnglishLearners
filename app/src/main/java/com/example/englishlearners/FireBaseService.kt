@@ -1,5 +1,6 @@
 package com.example.englishlearners
 
+import android.net.Uri
 import android.util.Log
 import com.example.englishlearners.model.*
 import com.google.firebase.database.DataSnapshot
@@ -13,14 +14,37 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 import androidx.lifecycle.lifecycleScope
+import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.*
+import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.collections.ArrayList
 
 
 object FirebaseService {
     private val ioScope = CoroutineScope(Dispatchers.IO)
     private val database = FirebaseDatabase.getInstance()
+    // Lấy tham chiếu đến Firebase Storage
+    private val storage = Firebase.storage
+    private val storageRef = storage.reference
 
+    suspend fun uploadImage(uri: Uri): String? {
+        return suspendCoroutine { continuation ->
+            val imageRef = storageRef.child("images/${UUID.randomUUID()}")
+            val uploadTask = imageRef.putFile(uri)
+
+            uploadTask.addOnSuccessListener { taskSnapshot ->
+                imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                    val imageUrl = downloadUri.toString()
+                    continuation.resume(imageUrl)
+                }.addOnFailureListener {
+                    continuation.resume(null)
+                }
+            }.addOnFailureListener {
+                continuation.resume(null)
+            }
+        }
+    }
 
     suspend fun deleteFolder(folderId: String): Boolean = withContext(Dispatchers.IO) {
         return@withContext try {
