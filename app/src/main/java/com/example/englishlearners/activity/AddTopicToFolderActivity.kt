@@ -60,7 +60,7 @@ class AddTopicToFolderActivity : AppCompatActivity() {
                 if (!clearResult) {
                     Toast.makeText(
                         this@AddTopicToFolderActivity,
-                        "Đã xảy ra lỗi2.",
+                        "Đã xảy ra lỗi.",
                         Toast.LENGTH_SHORT
                     ).show()
                     Toast.makeText(
@@ -94,17 +94,31 @@ class AddTopicToFolderActivity : AppCompatActivity() {
                 finish()
             }
         }
-
-        // load data
-        loadData()
     }
 
+    override fun onResume() {
+        Toast.makeText(
+            this@AddTopicToFolderActivity,
+            "onResume.",
+            Toast.LENGTH_SHORT
+        ).show()
+        loadData()
+        super.onResume()
+    }
 
     private fun loadData() {
         lifecycleScope.launch {
             try {
+//                selectedList = FirebaseService.getTopicsByFolderId(folderId)
+//                val topics = FirebaseService.getTopicsByOwnerId(firebaseUser!!.uid)
+
+                Log.d("LOAD_DATA", "Starting getTopicsByFolderId")
                 selectedList = FirebaseService.getTopicsByFolderId(folderId)
+                Log.d("LOAD_DATA", "Finished getTopicsByFolderId")
+
+                Log.d("LOAD_DATA", "Starting getTopicsByOwnerId")
                 val topics = FirebaseService.getTopicsByOwnerId(firebaseUser!!.uid)
+                Log.d("LOAD_DATA", "Finished getTopicsByOwnerId")
 
                 if (topics.isEmpty()) {
                     Log.d("Topic", "Không có topic nào")
@@ -147,7 +161,7 @@ class AddTopicToFolderActivity : AppCompatActivity() {
         displayNameTextView.text = topic.owner?.displayName
         vocabularyTextView.text = "${topic.vocabularyCount} thuật ngữ"
 
-        // set back groud if selected
+        // set back ground if selected
         if (selectedList.any { it.id == topic.id }) {
             layout.setBackgroundColor(lightGrey)
         }

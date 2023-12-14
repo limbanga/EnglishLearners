@@ -14,16 +14,14 @@ import com.example.englishlearners.FirebaseService
 import com.example.englishlearners.R
 import com.example.englishlearners.fragment.TopicFragment
 import com.example.englishlearners.model.Folder
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 class FolderDetailActivity : AppCompatActivity() {
 
@@ -87,14 +85,18 @@ class FolderDetailActivity : AppCompatActivity() {
 
             if (result == null) {
                 // Xử lý khi folder không tồn tại
-                Toast.makeText(this@FolderDetailActivity, "Folder không tồn tại.", Toast.LENGTH_SHORT)
+                Toast.makeText(
+                    this@FolderDetailActivity,
+                    "Folder không tồn tại.",
+                    Toast.LENGTH_SHORT
+                )
                     .show()
                 finish()
                 return@launch
             }
             // get owner
             val owner = FirebaseService.getUser(result.ownerId)
-            if (owner != null){
+            if (owner != null) {
                 result.owner = owner
             }
             bindingFolder(result)
@@ -124,13 +126,13 @@ class FolderDetailActivity : AppCompatActivity() {
         sheetDialog.setContentView(view)
 
         // map view
-        val deleteTopicButton: LinearLayout = view.findViewById(R.id.delete_topic_button)
+        val deleteFolderButton: LinearLayout = view.findViewById(R.id.delete_folder_button)
         val openUpdateButton: LinearLayout = view.findViewById(R.id.open_update_button)
-        val openAddButton: LinearLayout = view.findViewById(R.id.open_add_button)
+        val openAddTopicToFolderButton: LinearLayout = view.findViewById(R.id.open_add_button)
         val backButton: TextView = view.findViewById(R.id.back_btn)
 
         // set event
-        deleteTopicButton.setOnClickListener {
+        deleteFolderButton.setOnClickListener {
             sheetDialog.dismiss()
 
             val dialog = Dialog(this)
@@ -141,22 +143,40 @@ class FolderDetailActivity : AppCompatActivity() {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
-
             // map view
-//            val okButton: Button = view1.findViewById(R.id.ok_btn)
-//            val cancelButton: Button = view1.findViewById(R.id.cancel_button)
-//
-//            okButton.setOnClickListener {
-//                //handleDelete()
-//                val intent = Intent(this, MainActivity::class.java)
-//                startActivity(intent)
-//            }
-//
-//            cancelButton.setOnClickListener {
-//                dialog.dismiss()
-//            }
-//            dialog.show()
-//        }
+            val cancelButton: Button = view1.findViewById(R.id.cancel_button)
+            val okButton: Button = view1.findViewById(R.id.ok_btn)
+            // set event
+            cancelButton.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            okButton.setOnClickListener {
+                lifecycleScope.launch {
+
+                    val deletionResult = FirebaseService.deleteFolder(folderId)
+                    FirebaseService.removeTopicFromFolder(folderId)
+                    if (deletionResult) {
+                        Toast.makeText(
+                            this@FolderDetailActivity,
+                            "Xóa folder thành công",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        val intent = Intent(this@FolderDetailActivity, MainActivity::class.java)
+                        startActivity(intent)
+                    } else {
+                        Toast.makeText(
+                            this@FolderDetailActivity,
+                            "Xóa folder thất bại",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+
+            }
+
+            dialog.show()
+        }
 //
 //        openUpdateButton.setOnClickListener {
 //            val intent = Intent(this, ChangeTopicActivity::class.java)
@@ -167,9 +187,9 @@ class FolderDetailActivity : AppCompatActivity() {
 //
 //        backButton.setOnClickListener {
 //            sheetDialog.dismiss()
-        }
+//        }
 
-        openAddButton.setOnClickListener {
+        openAddTopicToFolderButton.setOnClickListener {
             sheetDialog.dismiss()
             val intent = Intent(this, AddTopicToFolderActivity::class.java)
             intent.putExtra(AddTopicToFolderActivity.KEY_FOLDER_ID, folderId)
@@ -178,4 +198,5 @@ class FolderDetailActivity : AppCompatActivity() {
 
         sheetDialog.show()
     }
+
 }
