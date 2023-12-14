@@ -4,24 +4,21 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.example.englishlearners.AppConst
 import com.example.englishlearners.FirebaseService
 import com.example.englishlearners.R
 import com.example.englishlearners.fragment.TopicFragment
 import com.example.englishlearners.model.Folder
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.firebase.database.DatabaseError
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 
 class FolderDetailActivity : AppCompatActivity() {
 
@@ -30,6 +27,7 @@ class FolderDetailActivity : AppCompatActivity() {
     }
 
     private val database = Firebase.database
+    private lateinit var firebaseUser: FirebaseUser
     private lateinit var folderId: String
     private lateinit var folder: Folder
 
@@ -49,6 +47,14 @@ class FolderDetailActivity : AppCompatActivity() {
             finish()
         }
         folderId = receivedIntent.getStringExtra(KEY_FOLDER_ID) as String
+        // kiểm tra đăng nhập
+        val tempUser = MainActivity.getFireBaseUser(this)
+        if (tempUser == null) {
+            Toast.makeText(this, "Vui lòng đăng nhập.", Toast.LENGTH_LONG).show()
+            finish()
+            return
+        }
+        firebaseUser = tempUser
 
         // map view
         linearLayout = findViewById(R.id.list)
@@ -89,8 +95,7 @@ class FolderDetailActivity : AppCompatActivity() {
                     this@FolderDetailActivity,
                     "Folder không tồn tại.",
                     Toast.LENGTH_SHORT
-                )
-                    .show()
+                ).show()
                 finish()
                 return@launch
             }
@@ -132,6 +137,15 @@ class FolderDetailActivity : AppCompatActivity() {
         val backButton: TextView = view.findViewById(R.id.back_btn)
 
         // set event
+        backButton.setOnClickListener {
+            sheetDialog.dismiss()
+        }
+
+        openUpdateButton.setOnClickListener {
+            sheetDialog.dismiss()
+            openFolderDialog()
+        }
+
         deleteFolderButton.setOnClickListener {
             sheetDialog.dismiss()
 
@@ -177,17 +191,6 @@ class FolderDetailActivity : AppCompatActivity() {
 
             dialog.show()
         }
-//
-//        openUpdateButton.setOnClickListener {
-//            val intent = Intent(this, ChangeTopicActivity::class.java)
-//            //intent.putExtra(ChangeTopicActivity.KEY_TOPIC_ID, topicId)
-//            startActivity(intent)
-//            sheetDialog.dismiss()
-//        }
-//
-//        backButton.setOnClickListener {
-//            sheetDialog.dismiss()
-//        }
 
         openAddTopicToFolderButton.setOnClickListener {
             sheetDialog.dismiss()
@@ -199,4 +202,61 @@ class FolderDetailActivity : AppCompatActivity() {
         sheetDialog.show()
     }
 
+    private fun openFolderDialog() {
+
+        val folderDialog = Dialog(this)
+
+        val view1: View = layoutInflater.inflate(R.layout.add_folder_dialog_layout, null)
+        folderDialog.setContentView(view1)
+        // set width and height
+        folderDialog.window!!.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+
+        // get dialog view
+        val cancelButton: Button = view1.findViewById(R.id.cancel_button)
+        val okButton: Button = view1.findViewById(R.id.ok_btn)
+        val nameEditText: EditText = view1.findViewById(R.id.folder_name_edit_text)
+        val descEditText: EditText = view1.findViewById(R.id.folder_desc_edit_text)
+        // set data
+        nameEditText.setText(folder.name)
+        descEditText.setText(folder.desc)
+        //set event
+        cancelButton.setOnClickListener {
+            folderDialog.dismiss()
+        }
+        okButton.setOnClickListener {
+            // nested fun
+            fun reverseBindingFolder(folder: Folder? = null): Folder {
+                val result = folder ?: Folder()
+                result.name = nameEditText.text.toString()
+                result.desc = descEditText.text.toString()
+                result.ownerId = firebaseUser.uid
+                return result
+            }
+
+            lifecycleScope.launch {
+                val folderToAdd = reverseBindingFolder()
+
+                val addedFolder = FirebaseService.addFolder(folderToAdd)
+
+                if (addedFolder != null) {
+                    Toast.makeText(
+                        this@FolderDetailActivity,
+                        "Cập nhật thành công!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    folderDialog.dismiss()
+                } else {
+                    Toast.makeText(
+                        this@FolderDetailActivity,
+                        "Cập nhật không thành công.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+        folderDialog.show()
+    }
 }

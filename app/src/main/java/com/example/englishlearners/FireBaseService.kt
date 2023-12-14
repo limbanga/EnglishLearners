@@ -100,6 +100,29 @@ object FirebaseService {
         }
     }
 
+    suspend fun updateFolder(folder: Folder, folderId: String): Folder? {
+        return suspendCoroutine { continuation ->
+            val database = Firebase.database
+            val myRef = database.getReference(AppConst.KEY_FOLDER).child(folderId)
+
+            val data = mapOf(
+                "name" to folder.name,
+                "desc" to folder.desc,
+                "ownerId" to folder.ownerId,
+                "updated" to System.currentTimeMillis(),
+            )
+
+            myRef.updateChildren(data) { databaseError, _ ->
+                if (databaseError != null) {
+                    continuation.resume(null) // Trả về null khi thất bại
+                } else {
+                    continuation.resume(folder) // Trả về folder khi thành công
+                }
+            }
+        }
+    }
+
+
     suspend fun getFolder(folderId: String): Folder? {
         return suspendCancellableCoroutine { continuation ->
             val myRef = database.getReference(AppConst.KEY_FOLDER).child(folderId)

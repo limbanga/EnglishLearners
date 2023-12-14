@@ -109,16 +109,8 @@ class AddTopicToFolderActivity : AppCompatActivity() {
     private fun loadData() {
         lifecycleScope.launch {
             try {
-//                selectedList = FirebaseService.getTopicsByFolderId(folderId)
-//                val topics = FirebaseService.getTopicsByOwnerId(firebaseUser!!.uid)
-
-                Log.d("LOAD_DATA", "Starting getTopicsByFolderId")
                 selectedList = FirebaseService.getTopicsByFolderId(folderId)
-                Log.d("LOAD_DATA", "Finished getTopicsByFolderId")
-
-                Log.d("LOAD_DATA", "Starting getTopicsByOwnerId")
                 val topics = FirebaseService.getTopicsByOwnerId(firebaseUser!!.uid)
-                Log.d("LOAD_DATA", "Finished getTopicsByOwnerId")
 
                 if (topics.isEmpty()) {
                     Log.d("Topic", "Không có topic nào")
