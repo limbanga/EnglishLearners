@@ -30,7 +30,7 @@ import java.util.Collections;
 import java.util.Locale;
 
 
-public class FlashCardActivity extends AppCompatActivity {
+public class FlashCardSwapLanguageActivity extends AppCompatActivity {
 
     private int currentCardIndex = 0;
     private ArrayList<Vocabulary> vocabularies;
@@ -54,31 +54,29 @@ public class FlashCardActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_flash_card);
-        swapLanguge();
+        setContentView(R.layout.activity_flash_card_swap_language);
 
+        swapLanguge();
         previousAndNextCard();
 
 
     }
     private void swapLanguge(){
-       iv_swap_language = findViewById(R.id.imv_swap_language);
+        iv_swap_language = findViewById(R.id.imv_swap_language);
         iv_swap_language.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showToast("abc");
-                Intent intent = new Intent(FlashCardActivity.this, FlashCardSwapLanguageActivity.class);
+                Intent intent = new Intent(FlashCardSwapLanguageActivity.this, FlashCardActivity.class);
                 startActivity(intent);
             }
         });
     }
-
     private void getVocabularies(String topicId) {
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("vocabularies");
 
         // Query the data based on the "topicId"
-       //myRef.orderByChild("topicId").equalTo(topicId).addListenerForSingleValueEvent(new ValueEventListener() {
-            myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        //myRef.orderByChild("topicId").equalTo(topicId).addListenerForSingleValueEvent(new ValueEventListener() {
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 ArrayList<Vocabulary>    vocabularies = new ArrayList<>();
@@ -89,7 +87,7 @@ public class FlashCardActivity extends AppCompatActivity {
                         //vocabularies.add(vocabulary);
                         word.add(vocabulary);
                     } else {
-                       showToast("null");
+                        showToast("null");
                     }
                 }
                 //showToast(String.valueOf(word.size()));
@@ -139,25 +137,26 @@ public class FlashCardActivity extends AppCompatActivity {
         viewFlipper.setDisplayedChild(0);
         cardView = findViewById(R.id.cardview);
 
-            txt_content.setText(term);
-            txt_back.setText(definition);
-            Speech(term);
-            SpeechAutomatical(term);
-            viewFlipper.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (viewFlipper.getDisplayedChild() == 0) {
-                        viewFlipper.showNext();
-                        Speech(definition);
-                        SpeechAutomatical(definition);
-                    } else {
+        txt_content.setText(definition);
+        txt_back.setText(term);
+        Speech(definition);
+        SpeechAutomatical(definition);
+        viewFlipper.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (viewFlipper.getDisplayedChild() == 0) {
+                    viewFlipper.showNext();
+                    Speech(term);
+                    SpeechAutomatical(term);
 
-                        viewFlipper.showPrevious();
-                        Speech(term);
-                        SpeechAutomatical(term);
-                    }
+                } else {
+
+                    viewFlipper.showPrevious();
+                    Speech(definition);
+                    SpeechAutomatical(definition);
                 }
-            });
+            }
+        });
 
 
 
@@ -305,7 +304,7 @@ public class FlashCardActivity extends AppCompatActivity {
                         speak(word);
                     }
                 } else {
-                    Toast.makeText(FlashCardActivity.this, "Initialization failed.", Toast.LENGTH_SHORT).show();
+
                 }
             }
         });
@@ -317,10 +316,10 @@ public class FlashCardActivity extends AppCompatActivity {
                 if (status == TextToSpeech.SUCCESS) {
                     int langResult = textToSpeech.setLanguage(Locale.US);
                     if (langResult == TextToSpeech.LANG_MISSING_DATA || langResult == TextToSpeech.LANG_NOT_SUPPORTED) {
-                      //  Toast.makeText(FlashCardActivity.this, "Text-to-Speech is not supported on your device.", Toast.LENGTH_SHORT).show();
+                        //  Toast.makeText(FlashCardActivity.this, "Text-to-Speech is not supported on your device.", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Toast.makeText(FlashCardActivity.this, "Initialization failed.", Toast.LENGTH_SHORT).show();
+
                 }
             }
         });
