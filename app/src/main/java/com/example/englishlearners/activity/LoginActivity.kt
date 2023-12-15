@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.englishlearners.R
 import com.google.firebase.auth.FirebaseAuth
 
-class giLoginActivity : AppCompatActivity() {
+class LoginActivity : AppCompatActivity() {
 
     private val mAuth = FirebaseAuth.getInstance()
 
