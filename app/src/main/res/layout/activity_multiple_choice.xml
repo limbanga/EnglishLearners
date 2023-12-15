@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="#f6effa"
     android:layout_height="match_parent"
     android:padding="10dp"
     android:orientation="vertical"
@@ -10,14 +11,18 @@
 
     <LinearLayout
         android:layout_width="match_parent"
+
         android:layout_height="wrap_content">
 
-        <Button
+        <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="back"/>
+            android:src="@drawable/baseline_arrow_back_24">
+
+        </ImageView>
 
         <TextView
+
             android:layout_weight="1"
             android:textAlignment="center"
             android:layout_width="wrap_content"
@@ -27,66 +32,173 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_weight="1"
+
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center">
 
         <TextView
+            android:layout_marginLeft="6dp"
+            android:layout_marginTop="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="24sp"
             android:textColor="@color/black"
-            android:text="CÂU HỎI: Một năm có bao nhiêu ngày?"/>
+            android:text="Một năm có bao nhiêu ngày?"
+            android:textStyle="bold"
+            />
 
     </LinearLayout>
 
     <LinearLayout
-        android:paddingVertical="20dp"
-        android:orientation="vertical"
+        android:layout_marginTop="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+        <androidx.cardview.widget.CardView
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="365 ngay"
-            android:textAllCaps="false"
-            android:textAlignment="textStart"
-            android:paddingVertical="20dp"
-            android:paddingStart="20dp"/>
+            android:layout_weight="1"
+            app:cardElevation="3dp"
+            app:cardUseCompatPadding="true"
+            app:cardCornerRadius="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="250dp">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <TextView
+                    android:id="@+id/textViewAnswerA"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="100dp"
+                    android:layout_centerHorizontal="true"
+                    android:text="Đáp án A"
+                    android:textColor="@color/black"
+                    android:textSize="25sp"
+                    />
+                <TextView
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="366 ngay"
-            android:paddingVertical="20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="A"
+                    android:textSize="16sp"
+                    android:layout_centerHorizontal="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="16dp" />
+            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
+        <androidx.cardview.widget.CardView
 
-            android:textAllCaps="false"
-            android:textAlignment="textStart"
-            android:paddingStart="20dp"/>
+            android:layout_weight="1"
+            app:cardElevation="3dp"
+            app:cardUseCompatPadding="true"
+            app:cardCornerRadius="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="250dp">
+            <RelativeLayout
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <TextView
+                    android:id="@+id/textViewAnswerB"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="100dp"
+                    android:layout_centerHorizontal="true"
+                    android:text="Đáp án B"
+                    android:textColor="@color/black"
+                    android:textSize="25sp"
+                    />
+                <TextView
 
-            android:text="364 ngay"
-            android:textAllCaps="false"
-            android:textAlignment="textStart"
-            android:paddingStart="20dp"/>
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="20dp"
-
-            android:text="363 ngay"
-            android:textAllCaps="false"
-            android:textAlignment="textStart"
-            android:paddingStart="20dp"/>
-
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="B"
+                    android:textSize="16sp"
+                    android:layout_centerHorizontal="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="16dp" />
+            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <androidx.cardview.widget.CardView
+
+            android:layout_weight="1"
+            app:cardElevation="3dp"
+            app:cardUseCompatPadding="true"
+            app:cardCornerRadius="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="250dp">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <TextView
+                    android:id="@+id/textViewAnswerC"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="100dp"
+                    android:layout_centerHorizontal="true"
+                    android:text="Đáp án C"
+                    android:textColor="@color/black"
+                    android:textSize="25sp"
+                    />
+                <TextView
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="C"
+                    android:textSize="16sp"
+                    android:layout_centerHorizontal="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="16dp" />
+            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
+        <androidx.cardview.widget.CardView
+
+            android:layout_weight="1"
+            app:cardElevation="3dp"
+            app:cardUseCompatPadding="true"
+            app:cardCornerRadius="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="250dp">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <TextView
+                    android:id="@+id/textViewAnswerD"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="100dp"
+                    android:layout_centerHorizontal="true"
+                    android:text="Đáp án D"
+                    android:textColor="@color/black"
+                    android:textSize="25sp"
+                    />
+                <TextView
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="D"
+                    android:textSize="16sp"
+                    android:layout_centerHorizontal="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="16dp" />
+            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
+
+
+
+
+
+
+
+
+
+
+
 
 </LinearLayout>
