@@ -63,7 +63,7 @@ public class FlashCardActivity extends AppCompatActivity {
         iv_swap_language.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showToast("abc");
+
                 Intent intent = new Intent(FlashCardActivity.this, FlashCardSwapLanguageActivity.class);
                 startActivity(intent);
             }

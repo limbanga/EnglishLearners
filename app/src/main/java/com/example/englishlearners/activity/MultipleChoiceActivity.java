@@ -1,10 +1,12 @@
 package com.example.englishlearners.activity;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,7 +36,9 @@ public class MultipleChoiceActivity extends AppCompatActivity {
     TextView Tv_question;
     TextView tv_curentState;
     TextView tv_score;
-    int score = 0;
+    ImageView iv_back;
+    public static int score = 0;
+    public static int vocabularies_size;
     int currentIndex = 1;
     Button btn_continous;
     ArrayList<Vocabulary> CorectWord = new ArrayList<Vocabulary>();
@@ -45,6 +49,19 @@ public class MultipleChoiceActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_multiple_choice);
         moveOnQuestion();
+        back();
+    }
+    private void back(){
+        iv_back = findViewById(R.id.back);
+        iv_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MultipleChoiceActivity.this, MainActivity.class);
+                startActivity(intent);
+                score = 0;
+            }
+        });
+
     }
     private void generateQuestion(Vocabulary correctAnswer) {
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("vocabularies");
@@ -208,6 +225,7 @@ public class MultipleChoiceActivity extends AppCompatActivity {
                             Rl_answerC.setEnabled(false);
                             tv_score = findViewById(R.id.score);
                             tv_score.setText("Điểm: "+score);
+                            score++;
                         }
                         else {
                             showToast("Sai");
@@ -276,6 +294,7 @@ public class MultipleChoiceActivity extends AppCompatActivity {
                         showToast("null");
                     }
                 }
+                vocabularies_size = vocabularies.size();
                 tv_curentState=findViewById(R.id.currentState);
                 tv_score = findViewById(R.id.score);
                 tv_curentState.setText(currentIndex+"/"+vocabularies.size());
@@ -292,7 +311,8 @@ public class MultipleChoiceActivity extends AppCompatActivity {
                             tv_curentState.setText(currentIndex+"/"+vocabularies.size());
                         }
                         else {
-
+                            Intent intent = new Intent(MultipleChoiceActivity.this, MultipleChoiceViewResult.class);
+                            startActivity(intent);
                         }
 
 
