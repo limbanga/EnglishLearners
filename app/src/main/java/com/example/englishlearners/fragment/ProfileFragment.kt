@@ -104,7 +104,6 @@ class ProfileFragment : Fragment() {
                 lifecycleScope.launch {
                     val result = FirebaseService.uploadImage(uri)
                     if (result == null) {
-
                         Toast.makeText(
                             requireContext(),
                             "Không thể thay đổi avatar.",
@@ -118,6 +117,7 @@ class ProfileFragment : Fragment() {
                         "Thay đổi avatar thành công.",
                         Toast.LENGTH_SHORT
                     ).show()
+
                     val updateResult = FirebaseService.updateImagePathForUser(firebaseUser!!.uid, result)
                 }
             }
