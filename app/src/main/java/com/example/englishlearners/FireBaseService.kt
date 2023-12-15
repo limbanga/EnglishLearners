@@ -28,6 +28,16 @@ object FirebaseService {
     private val storage = Firebase.storage
     private val storageRef = storage.reference
 
+    suspend fun updateImagePathForUser(userId: String, imagePath: String): Boolean {
+        return try {
+            val userRef = database.getReference(AppConst.KEY_USER).child(userId).child("imgPath")
+            userRef.setValue(imagePath).await()
+            true // Trả về true nếu cập nhật thành công
+        } catch (e: Exception) {
+            false // Trả về false nếu có lỗi xảy ra
+        }
+    }
+
     suspend fun uploadImage(uri: Uri): String? {
         return suspendCoroutine { continuation ->
             val imageRef = storageRef.child("images/${UUID.randomUUID()}")
