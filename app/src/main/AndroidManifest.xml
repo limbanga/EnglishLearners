@@ -15,6 +15,9 @@
         android:theme="@style/Theme.EnglishLearners"
         tools:targetApi="31">
         <activity
+            android:name=".activity.MultipleChoiceViewResult"
+            android:exported="false" />
+        <activity
             android:name=".activity.FlashCardSwapLanguageActivity"
             android:exported="false" />
         <activity

@@ -56,10 +56,7 @@ public class FlashCardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_flash_card);
         swapLanguge();
-
         previousAndNextCard();
-
-
     }
     private void swapLanguge(){
        iv_swap_language = findViewById(R.id.imv_swap_language);
@@ -158,8 +155,6 @@ public class FlashCardActivity extends AppCompatActivity {
                     }
                 }
             });
-
-
 
     }
     private void previousAndNextCard(){
