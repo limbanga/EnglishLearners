@@ -34,6 +34,7 @@ class FolderDetailActivity : AppCompatActivity() {
     private lateinit var linearLayout: LinearLayout
     private lateinit var folderNameTextView: TextView
     private lateinit var displayNameTextView: TextView
+    private lateinit var folderDescTextView: TextView
     private lateinit var openActionMenuImageView: ImageView
     private lateinit var backButton: ImageView
 
@@ -62,6 +63,7 @@ class FolderDetailActivity : AppCompatActivity() {
         displayNameTextView = findViewById(R.id.display_name_text_view)
         openActionMenuImageView = findViewById(R.id.open_menu_btn)
         backButton = findViewById(R.id.back_btn)
+        folderDescTextView = findViewById(R.id.folder_desc_text_view)
 
         // set event
         backButton.setOnClickListener {
@@ -73,16 +75,9 @@ class FolderDetailActivity : AppCompatActivity() {
 
     }
 
-    override fun onStart() {
-        super.onStart()
-        // load data
-        loadData()
-    }
-
     override fun onResume() {
-        super.onResume()
-        Toast.makeText(this, "resume", Toast.LENGTH_SHORT).show()
         loadData()
+        super.onResume()
     }
 
     private fun loadData() {
@@ -122,6 +117,7 @@ class FolderDetailActivity : AppCompatActivity() {
         this.folder = folder
         folderNameTextView.text = folder.name
         displayNameTextView.text = folder.owner?.displayName
+        folderDescTextView.text = folder.desc
     }
 
     @SuppressLint("InflateParams")
