@@ -18,6 +18,15 @@
             android:name=".activity.ChangePasswordActivity"
             android:exported="false" />
         <activity
+            android:name=".activity.TypeWordListVocabularyViet"
+            android:exported="false" />
+        <activity
+            android:name=".activity.TypeWordResultViet"
+            android:exported="false" />
+        <activity
+            android:name=".activity.TypeWordListVocabularyEng"
+            android:exported="false" />
+        <activity
             android:name=".activity.TypeWordViet"
             android:exported="false" />
         <activity

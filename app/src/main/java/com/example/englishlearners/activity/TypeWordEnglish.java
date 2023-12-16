@@ -40,6 +40,8 @@ public class TypeWordEnglish extends AppCompatActivity {
     ImageView iv_back;
     ImageView iv_shuffle;
     private TextToSpeech textToSpeech;
+    public static ArrayList<Vocabulary> CorectWord = new ArrayList<Vocabulary>();
+    public static ArrayList<Vocabulary> IncorectWord = new ArrayList<Vocabulary>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,6 +134,7 @@ public class TypeWordEnglish extends AppCompatActivity {
                         public void onClick(View view) {
 
                                 if(Question(vocabularies.get(currentIndex))){
+                                    CorectWord.add(vocabularies.get(currentIndex));
                                     feedbackLayout = getLayoutInflater().inflate(R.layout.feedback_correct_type_word, null);
                                     tv_corect_word = feedbackLayout.findViewById(R.id.tv_correct_word1);
                                     tv_corect_word.setText(vocabularies.get(currentIndex).getTerm());
@@ -154,6 +157,7 @@ public class TypeWordEnglish extends AppCompatActivity {
                                     }, 2000);
                                 }
                                 else {
+                                    IncorectWord.add(vocabularies.get(currentIndex));
                                     feedbackLayout = getLayoutInflater().inflate(R.layout.feedback_incorrect_type_word, null);
                                     tv_corect_word = feedbackLayout.findViewById(R.id.tv_correct_word);
                                     tv_corect_word.setText(vocabularies.get(currentIndex).getTerm());
