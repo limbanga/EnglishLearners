@@ -28,6 +28,41 @@ object FirebaseService {
     private val storage = Firebase.storage
     private val storageRef = storage.reference
 
+
+    suspend fun getFolders(): ArrayList<Folder> {
+        return suspendCoroutine { continuation ->
+            val foldersRef = database.getReference(AppConst.KEY_FOLDER)
+            val foldersList = ArrayList<Folder>()
+
+            val valueEventListener = object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    for (snapshot in dataSnapshot.children) {
+                        val folder = snapshot.getValue(Folder::class.java)
+                        folder?.id = snapshot.key.toString()
+                        foldersList.add(folder!!)
+                    }
+                    continuation.resume(foldersList)
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {
+                    continuation.resumeWithException(databaseError.toException())
+                }
+            }
+
+            foldersRef.addListenerForSingleValueEvent(valueEventListener)
+        }
+    }
+
+    suspend fun updateImagePathForUser(userId: String, imagePath: String): Boolean {
+        return try {
+            val userRef = database.getReference(AppConst.KEY_USER).child(userId).child("imgPath")
+            userRef.setValue(imagePath).await()
+            true // Trả về true nếu cập nhật thành công
+        } catch (e: Exception) {
+            false // Trả về false nếu có lỗi xảy ra
+        }
+    }
+
     suspend fun uploadImage(uri: Uri): String? {
         return suspendCoroutine { continuation ->
             val imageRef = storageRef.child("images/${UUID.randomUUID()}")

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
 import com.example.englishlearners.FirebaseService
 import com.example.englishlearners.R
 import com.example.englishlearners.activity.LoginActivity
@@ -82,6 +84,9 @@ class ProfileFragment : Fragment() {
 
     private fun bindingAppUser(appUser: AppUser) {
         this.appUser = appUser
+        Glide.with(this)
+            .load(appUser.imgPath)
+            .into(avatarImage)
         displayNameTextView.text = appUser.displayName
     }
 
@@ -98,19 +103,22 @@ class ProfileFragment : Fragment() {
             data?.data?.let { uri ->
                 lifecycleScope.launch {
                     val result = FirebaseService.uploadImage(uri)
-                    if (result != null) {
-                        Toast.makeText(
-                            requireContext(),
-                            "Thay đổi avatar thành công.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
+                    if (result == null) {
                         Toast.makeText(
                             requireContext(),
                             "Không thể thay đổi avatar.",
                             Toast.LENGTH_SHORT
                         ).show()
+                        return@launch
                     }
+
+                    Toast.makeText(
+                        requireContext(),
+                        "Thay đổi avatar thành công.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    val updateResult = FirebaseService.updateImagePathForUser(firebaseUser!!.uid, result)
                 }
             }
         }

@@ -14,6 +14,7 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
 import com.example.englishlearners.AppConst
 import com.example.englishlearners.FirebaseService
 import com.example.englishlearners.R
@@ -26,6 +27,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -81,11 +83,15 @@ class TopicFragment(private var folderId: String? = null) : Fragment() {
         val timeSinceTextView: TextView = view.findViewById(R.id.time_since_text_view)
         val displayNameTextView: TextView = view.findViewById(R.id.display_name_text_view)
         val vocabularyTextView: TextView = view.findViewById(R.id.vocabulary_count_text_view)
+        val avatarImage: CircleImageView = view.findViewById(R.id.avatar_image)
 
         titleTextView.text = topic.title
         timeSinceTextView.text = Utils.getTimeSince(topic.updated)
         displayNameTextView.text = topic.owner?.displayName
         vocabularyTextView.text = "${topic.vocabularyCount} thuật ngữ"
+        Glide.with(this)
+            .load(topic.owner?.imgPath)
+            .into(avatarImage)
 
         view.setOnClickListener {
             val intent = Intent(requireContext(), TopicDetailActivity::class.java)

@@ -9,18 +9,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.example.englishlearners.AppConst
+import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
+import com.example.englishlearners.FirebaseService
 import com.example.englishlearners.R
 import com.example.englishlearners.activity.FolderDetailActivity
-import com.example.englishlearners.model.AppUser
 import com.example.englishlearners.model.Folder
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import de.hdodenhof.circleimageview.CircleImageView
+import kotlinx.coroutines.launch
 
 class FolderFragment : Fragment() {
 
@@ -42,73 +41,37 @@ class FolderFragment : Fragment() {
     }
 
     private fun loadData() {
-        val myRef = database.getReference(AppConst.KEY_FOLDER).orderByChild("updated")
-
-        myRef.addValueEventListener(object : ValueEventListener {
-
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                // remove all view before add
-                linearLayout.removeAllViews()
-
-                for (snapshot in dataSnapshot.children.reversed()) {
-
-                    val itemValue = snapshot.getValue(Folder::class.java)
-                    val itemKey = snapshot.key.toString()
-
-                    if (itemValue != null) {
-                        itemValue.id = itemKey
-                        // lay ten ben khoa ngoai
-                        val userRef =
-                            database.getReference(AppConst.KEY_USER).child(itemValue.ownerId)
-
-                        userRef.addValueEventListener(object : ValueEventListener {
-                            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                                val appUser: AppUser? = dataSnapshot.getValue(AppUser::class.java)
-                                if (appUser != null) {
-                                    appUser.id = dataSnapshot.key.toString()
-                                    itemValue.owner = appUser
-                                    initCard(itemValue)
-                                } else {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        "owner is null",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
-                            }
-
-                            override fun onCancelled(databaseError: DatabaseError) {
-                                Log.d(AppConst.DEBUG_TAG, "Khong the doc owner")
-                            }
-                        })
-
-                    } else {
-                        Log.d(AppConst.DEBUG_TAG, itemKey + "is null")
+        lifecycleScope.launch {
+            try {
+                val folderList = FirebaseService.getFolders()
+                folderList.forEach {
+                    val user = FirebaseService.getUser(it.ownerId)
+                    if (user != null) {
+                        it.owner = user
+                        setCardView(it)
                     }
                 }
+            } catch (e: Exception) {
+                Log.e("Firebase", "Error loading topics: ${e.message}")
             }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e(
-                    AppConst.DEBUG_TAG,
-                    "Failed to read value.${error.message}",
-                    error.toException()
-                )
-            }
-        })
+        }
     }
 
     @SuppressLint("SetTextI18n")
-    private fun initCard(folder: Folder) {
+    private fun setCardView(folder: Folder) {
         if (!isAdded) return
         val view: View = requireActivity().layoutInflater
             .inflate(R.layout.item_folder, linearLayout, false)
 
         val folderNameTextView: TextView = view.findViewById(R.id.folder_name_text_view)
         val displayNameTextView: TextView = view.findViewById(R.id.display_name_text_view)
+        val avatarImage: CircleImageView = view.findViewById(R.id.avatar_image)
 
         folderNameTextView.text = folder.name
         displayNameTextView.text = folder.owner?.displayName
+        Glide.with(this)
+            .load(folder.owner?.imgPath)
+            .into(avatarImage)
 
         view.setOnClickListener {
             val intent = Intent(requireContext(), FolderDetailActivity::class.java)
