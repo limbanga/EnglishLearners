@@ -1,11 +1,10 @@
 package com.example.englishlearners.model
 
-import android.service.quicksettings.Tile
-
 data class Topic(
     var id: String = "",
     var title: String = "",
     var desc: String = "",
+    var isPublic: Boolean = false,
     var ownerId: String = "",
     var owner: AppUser? = null,
     var vocabularyCount: Long = 0,

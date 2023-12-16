@@ -36,6 +36,8 @@ class ChangeTopicActivity : AppCompatActivity() {
     private lateinit var appTitleTextView: TextView
     private lateinit var addDescButton: TextView
     private lateinit var descEditText: EditText
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
+    private lateinit var isPublicSwitch: Switch
 
 
     @SuppressLint("InflateParams")
@@ -51,6 +53,7 @@ class ChangeTopicActivity : AppCompatActivity() {
         appTitleTextView = findViewById(R.id.app_title_text_view)
         addDescButton = findViewById(R.id.add_desc_text_view)
         descEditText = findViewById(R.id.topic_desc_edit_text)
+        isPublicSwitch = findViewById(R.id.is_public_switch)
 
         // if update
         val receivedIntent = intent
@@ -188,12 +191,16 @@ class ChangeTopicActivity : AppCompatActivity() {
         result.title = titleEditText.text.toString()
         result.desc = descEditText.text.toString()
         result.ownerId = firebaseUser!!.uid
+        result.isPublic = isPublicSwitch.isChecked
         result.vocabularyCount = -1
 
         return result
     }
 
     private fun loadData() {
+        if (topicId.isEmpty()) {
+            return
+        }
         lifecycleScope.launch {
             val topic = FirebaseService.getTopic(topicId) ?: run {
                 Toast.makeText(this@ChangeTopicActivity, "Topic không tồn tại.", Toast.LENGTH_SHORT)
@@ -227,6 +234,7 @@ class ChangeTopicActivity : AppCompatActivity() {
         } else {
             descEditText.setText(topic.desc)
         }
+        isPublicSwitch.isChecked = topic.isPublic
     }
 
     private fun setCardView(vocabulary: Vocabulary) {

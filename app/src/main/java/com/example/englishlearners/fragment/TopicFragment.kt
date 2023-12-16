@@ -32,7 +32,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 
-class TopicFragment(private var folderId: String? = null) : Fragment() {
+class TopicFragment(private var folderId: String? = null,
+                    private var getPublicOnly: Boolean = false) : Fragment() {
 
     private val database = Firebase.database
 
@@ -55,7 +56,7 @@ class TopicFragment(private var folderId: String? = null) : Fragment() {
         lifecycleScope.launch {
             try {
                 val topicsList =
-                    if (folderId != null) FirebaseService.getTopicsByFolderId(folderId!!) else FirebaseService.getTopics()
+                    if (folderId != null) FirebaseService.getTopicsByFolderId(folderId!!) else FirebaseService.getTopics(getPublicOnly)
 
                 topicsList.forEach {
                     val user = FirebaseService.getUser(it.ownerId)

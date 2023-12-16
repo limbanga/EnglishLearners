@@ -23,11 +23,6 @@ class HomeFragment : Fragment() {
         return rootView
     }
 
-    override fun onStart() {
-        loadData()
-        super.onStart()
-    }
-
     override fun onResume() {
         loadData()
         super.onResume()
@@ -36,7 +31,7 @@ class HomeFragment : Fragment() {
     private fun loadData() {
         val childFragmentManager = childFragmentManager
         val transaction = childFragmentManager.beginTransaction()
-        val fragment = TopicFragment()
+        val fragment = TopicFragment(getPublicOnly = true)
         transaction.replace(R.id.list, fragment)
         transaction.commit()
     }

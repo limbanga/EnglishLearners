@@ -50,8 +50,16 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="end"
+        android:gravity="center_vertical"
         android:orientation="horizontal">
+
+        <Switch
+            android:id="@+id/is_public_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="public"
+            android:textSize="22sp"
+            tools:ignore="UseSwitchCompatOrMaterialXml" />
 
         <TextView
             android:id="@+id/add_desc_text_view"
@@ -60,7 +68,9 @@
             android:text="@string/add_desc_label"
             android:textColor="@color/primary"
             android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:layout_weight="1"
+            android:textAlignment="textEnd"/>
 
     </LinearLayout>
 

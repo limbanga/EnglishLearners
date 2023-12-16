@@ -3,10 +3,6 @@ package com.example.englishlearners
 import android.net.Uri
 import android.util.Log
 import com.example.englishlearners.model.*
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
@@ -14,6 +10,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 import androidx.lifecycle.lifecycleScope
+import com.google.firebase.database.*
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.*
 import java.util.*
@@ -243,7 +240,7 @@ object FirebaseService {
         }
     }
 
-    suspend fun getTopics(): ArrayList<Topic> {
+    suspend fun getTopics(getPublicOnly: Boolean = false): ArrayList<Topic> {
         return suspendCoroutine { continuation ->
             val topicsList = ArrayList<Topic>()
             val myRef = database.getReference(AppConst.KEY_TOPIC)
@@ -251,12 +248,16 @@ object FirebaseService {
             myRef.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     for (snapshot in dataSnapshot.children.reversed()) {
-                        val itemValue = snapshot.getValue(Topic::class.java)
+                        val itemValue = snapshot.getValue<Topic>()
                         val itemKey = snapshot.key.toString()
-
                         if (itemValue != null) {
                             itemValue.id = itemKey
-                            topicsList.add(itemValue)
+                            itemValue.isPublic = snapshot.child("isPublic").getValue(Boolean::class.java) ?: false
+
+                            val isGet = !getPublicOnly || itemValue.isPublic
+                            if (isGet) {
+                                topicsList.add(itemValue)
+                            }
                         } else {
                             Log.d(AppConst.DEBUG_TAG, "$itemKey is null")
                         }
@@ -426,6 +427,7 @@ object FirebaseService {
             val updateMap = mutableMapOf<String, Any?>(
                 "title" to topic.title,
                 "desc" to topic.desc,
+                "isPublic" to topic.isPublic,
                 "ownerId" to topic.ownerId,
                 "created" to topic.created,
                 "vocabularyCount" to vocabularyCount,
@@ -443,7 +445,6 @@ object FirebaseService {
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun addTopic(topic: Topic, vocabularyCount: Long): Topic? {
         return suspendCancellableCoroutine { continuation ->
             val myRef = database.getReference(AppConst.KEY_TOPIC)
@@ -452,6 +453,7 @@ object FirebaseService {
             val data = mapOf(
                 "title" to topic.title,
                 "desc" to topic.desc,
+                "isPublic" to topic.isPublic,
                 "ownerId" to topic.ownerId,
                 "created" to System.currentTimeMillis(),
                 "updated" to System.currentTimeMillis(),
