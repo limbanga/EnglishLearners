@@ -11,14 +11,17 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
 import com.example.englishlearners.AppConst
 import com.example.englishlearners.FirebaseService
 import com.example.englishlearners.R
 import com.example.englishlearners.model.Topic
 import com.example.englishlearners.model.Vocabulary
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.*
@@ -36,6 +39,7 @@ class TopicDetailActivity : AppCompatActivity() {
 
     private var textToSpeech: TextToSpeech? = null
     private val database = Firebase.database
+    private lateinit var firebaseUser: FirebaseUser
 
     private lateinit var linearLayout: LinearLayout
     private lateinit var flashCard: CardView
@@ -46,6 +50,7 @@ class TopicDetailActivity : AppCompatActivity() {
     private lateinit var titleTextView: TextView
     private lateinit var descTextView: TextView
     private lateinit var displayNameTextView: TextView
+    private lateinit var avatarCircleImageView: CircleImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +62,8 @@ class TopicDetailActivity : AppCompatActivity() {
             finish()
         }
         topicId = receivedIntent.getStringExtra(KEY_TOPIC_ID) as String
+        firebaseUser = MainActivity.getFireBaseUser(this) ?: return
+
         // map view
         linearLayout = findViewById(R.id.card_list)
         flashCard = findViewById(R.id.flash_card)
@@ -67,29 +74,30 @@ class TopicDetailActivity : AppCompatActivity() {
         titleTextView = findViewById(R.id.title_text_view)
         descTextView = findViewById(R.id.desc_text_view)
         displayNameTextView = findViewById(R.id.display_name_text_view)
+        avatarCircleImageView = findViewById(R.id.avatar_image)
 
         // set event
         flashCard.setOnClickListener {
-            Toast.makeText(this, "open flashcard", Toast.LENGTH_SHORT).show()
             val intent = Intent(this, FlashCardActivity::class.java)
             startActivity(intent)
         }
 
         multipleChoice.setOnClickListener {
-            Toast.makeText(this, "open multiple choice", Toast.LENGTH_SHORT)
-                .show()
             val intent = Intent(this, MultipleChoiceActivity::class.java)
             startActivity(intent)
         }
 
         typeWord.setOnClickListener {
-            Toast.makeText(this, "open type word", Toast.LENGTH_SHORT).show()
             val intent = Intent(this, TypeWordActivity::class.java)
             startActivity(intent)
         }
 
         openMenuButton.setOnClickListener {
-            openBottomDialog()
+            if (topic.ownerId != firebaseUser.uid) {
+                Toast.makeText(this, "Bạn không phải chủ học phần", Toast.LENGTH_SHORT).show()
+            } else {
+                openBottomDialog()
+            }
         }
 
         backButton.setOnClickListener {
@@ -115,7 +123,7 @@ class TopicDetailActivity : AppCompatActivity() {
                 finish()
                 return@launch
             }
-
+            topic.owner = FirebaseService.getUser(topic.ownerId)
             bindingTopic(topic)
             val result = FirebaseService.getVocabularies(topicId)
             bindingVocabularies(result)
@@ -134,6 +142,9 @@ class TopicDetailActivity : AppCompatActivity() {
         this.topic = topic
         titleTextView.text = topic.title
         displayNameTextView.text = topic.owner?.displayName
+        Glide.with(this)
+            .load(topic.owner?.imgPath)
+            .into(avatarCircleImageView)
         if (topic.desc.isEmpty()) {
             descTextView.visibility = View.GONE
         } else {

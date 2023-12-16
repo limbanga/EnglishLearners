@@ -26,17 +26,19 @@ object FirebaseService {
     private val storageRef = storage.reference
 
 
-    suspend fun getFolders(): ArrayList<Folder> {
+    suspend fun getFolders(userId: String? = null): ArrayList<Folder> {
         return suspendCoroutine { continuation ->
             val foldersRef = database.getReference(AppConst.KEY_FOLDER)
             val foldersList = ArrayList<Folder>()
 
             val valueEventListener = object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    for (snapshot in dataSnapshot.children) {
+                    for (snapshot in dataSnapshot.children.reversed()) {
                         val folder = snapshot.getValue(Folder::class.java)
                         folder?.id = snapshot.key.toString()
-                        foldersList.add(folder!!)
+                        if (userId == null || folder!!.ownerId == userId ) {
+                            foldersList.add(folder!!)
+                        }
                     }
                     continuation.resume(foldersList)
                 }

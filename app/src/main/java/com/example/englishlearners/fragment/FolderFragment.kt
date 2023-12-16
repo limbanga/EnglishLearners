@@ -21,7 +21,7 @@ import com.google.firebase.ktx.Firebase
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.launch
 
-class FolderFragment : Fragment() {
+class FolderFragment(private var userId: String? = null) : Fragment() {
 
     private val database = Firebase.database
 
@@ -43,12 +43,21 @@ class FolderFragment : Fragment() {
     private fun loadData() {
         lifecycleScope.launch {
             try {
-                val folderList = FirebaseService.getFolders()
-                folderList.forEach {
-                    val user = FirebaseService.getUser(it.ownerId)
-                    if (user != null) {
+                if (userId != null) {
+                    val user = FirebaseService.getUser(userId!!)
+                    val folderList = FirebaseService.getFolders(userId)
+                    folderList.forEach {
                         it.owner = user
                         setCardView(it)
+                    }
+                } else {
+                    val folderList = FirebaseService.getFolders()
+                    folderList.forEach {
+                        val user = FirebaseService.getUser(it.ownerId)
+                        if (user != null) {
+                            it.owner = user
+                            setCardView(it)
+                        }
                     }
                 }
             } catch (e: Exception) {
