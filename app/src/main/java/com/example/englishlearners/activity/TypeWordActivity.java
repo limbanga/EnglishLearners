@@ -27,5 +27,12 @@ public class TypeWordActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        btn_vn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(TypeWordActivity.this, TypeWordViet.class);
+                startActivity(intent);
+            }
+        });
     }
 }

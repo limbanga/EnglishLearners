@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Locale;
 
-public class TypeWordEnglish extends AppCompatActivity {
+public class TypeWordViet extends AppCompatActivity {
     TextView tv_quesion;
     EditText edt_answer;
     Button btn_complete;
@@ -53,7 +53,7 @@ public class TypeWordEnglish extends AppCompatActivity {
         iv_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(TypeWordEnglish.this, TypeWordActivity.class);
+                Intent intent = new Intent(TypeWordViet.this, TypeWordActivity.class);
                 startActivity(intent);
                 score = 0;
             }
@@ -67,7 +67,7 @@ public class TypeWordEnglish extends AppCompatActivity {
         SpeechAutomatical(word.getTerm());
 
 
-        if(edt_answer.getText().toString().equalsIgnoreCase(word.getTerm())){
+        if(edt_answer.getText().toString().equalsIgnoreCase(word.getDefinition())){
 
             return true;
 
@@ -83,8 +83,8 @@ public class TypeWordEnglish extends AppCompatActivity {
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("vocabularies");
 
         // Query the data based on the "topicId"
-       myRef.orderByChild("topicId").equalTo(topicId).addListenerForSingleValueEvent(new ValueEventListener() {
-        //myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        myRef.orderByChild("topicId").equalTo(topicId).addListenerForSingleValueEvent(new ValueEventListener() {
+            //myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 ArrayList<Vocabulary> vocabularies = new ArrayList<>();
@@ -108,7 +108,7 @@ public class TypeWordEnglish extends AppCompatActivity {
                         currentIndex = 0;
                         score = 0;
                         tv_quesion = findViewById(R.id.textViewWord);
-                        tv_quesion.setText(vocabularies.get(currentIndex).getDefinition());
+                        tv_quesion.setText(vocabularies.get(currentIndex).getTerm());
                         btn_complete = findViewById(R.id.CompleteAnswer);
                         tv_score = findViewById(R.id.score);
                         edt_answer = findViewById(R.id.edt_answer);
@@ -118,7 +118,7 @@ public class TypeWordEnglish extends AppCompatActivity {
                 });
                 if(currentIndex<vocabularies.size()){
                     tv_quesion = findViewById(R.id.textViewWord);
-                    tv_quesion.setText(vocabularies.get(currentIndex).getDefinition());
+                    tv_quesion.setText(vocabularies.get(currentIndex).getTerm());
                     btn_complete = findViewById(R.id.CompleteAnswer);
                     tv_score = findViewById(R.id.score);
                     edt_answer = findViewById(R.id.edt_answer);
@@ -131,50 +131,50 @@ public class TypeWordEnglish extends AppCompatActivity {
                         @Override
                         public void onClick(View view) {
 
-                                if(Question(vocabularies.get(currentIndex))){
-                                    feedbackLayout = getLayoutInflater().inflate(R.layout.feedback_correct_type_word, null);
-                                    tv_corect_word = feedbackLayout.findViewById(R.id.tv_correct_word1);
-                                    tv_corect_word.setText(vocabularies.get(currentIndex).getTerm());
-                                    ViewGroup rootView = findViewById(android.R.id.content);
-                                    rootView.addView(feedbackLayout);
-                                    feedbackLayout.setVisibility(View.GONE);
-                                    score ++ ;
-                                    feedbackLayout.setVisibility(View.VISIBLE);
-                                    new Handler().postDelayed(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            feedbackLayout.setVisibility(View.GONE);
-                                            edt_answer.setText("");
-                                            currentIndex ++ ;
-                                            tv_score.setText("Điểm: "+score);
-                                            tv_curentState.setText((currentIndex+1)+"/"+vocabularies.size());
+                            if(Question(vocabularies.get(currentIndex))){
+                                feedbackLayout = getLayoutInflater().inflate(R.layout.feedback_correct_type_word, null);
+                                tv_corect_word = feedbackLayout.findViewById(R.id.tv_correct_word1);
+                                tv_corect_word.setText(vocabularies.get(currentIndex).getTerm());
+                                ViewGroup rootView = findViewById(android.R.id.content);
+                                rootView.addView(feedbackLayout);
+                                feedbackLayout.setVisibility(View.GONE);
+                                score ++ ;
+                                feedbackLayout.setVisibility(View.VISIBLE);
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        feedbackLayout.setVisibility(View.GONE);
+                                        edt_answer.setText("");
+                                        currentIndex ++ ;
+                                        tv_score.setText("Điểm: "+score);
+                                        tv_curentState.setText((currentIndex+1)+"/"+vocabularies.size());
 
-                                            getVocabularies("-NlcBn6rw-jpTzwukjj6");
-                                        }
-                                    }, 2000);
-                                }
-                                else {
-                                    feedbackLayout = getLayoutInflater().inflate(R.layout.feedback_incorrect_type_word, null);
-                                    tv_corect_word = feedbackLayout.findViewById(R.id.tv_correct_word);
-                                    tv_corect_word.setText(vocabularies.get(currentIndex).getTerm());
-                                    ViewGroup rootView = findViewById(android.R.id.content);
-                                    rootView.addView(feedbackLayout);
-                                    feedbackLayout.setVisibility(View.GONE);
+                                        getVocabularies("-NlcBn6rw-jpTzwukjj6");
+                                    }
+                                }, 2000);
+                            }
+                            else {
+                                feedbackLayout = getLayoutInflater().inflate(R.layout.feedback_incorrect_type_word, null);
+                                tv_corect_word = feedbackLayout.findViewById(R.id.tv_correct_word);
+                                tv_corect_word.setText(vocabularies.get(currentIndex).getTerm());
+                                ViewGroup rootView = findViewById(android.R.id.content);
+                                rootView.addView(feedbackLayout);
+                                feedbackLayout.setVisibility(View.GONE);
 
-                                    feedbackLayout.setVisibility(View.VISIBLE);
-                                    new Handler().postDelayed(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            feedbackLayout.setVisibility(View.GONE);
-                                            edt_answer.setText("");
-                                            currentIndex ++ ;
-                                            tv_score.setText("Điểm: "+score);
-                                            tv_curentState.setText((currentIndex+1)+"/"+vocabularies.size());
+                                feedbackLayout.setVisibility(View.VISIBLE);
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        feedbackLayout.setVisibility(View.GONE);
+                                        edt_answer.setText("");
+                                        currentIndex ++ ;
+                                        tv_score.setText("Điểm: "+score);
+                                        tv_curentState.setText((currentIndex+1)+"/"+vocabularies.size());
 
-                                            getVocabularies("-NlcBn6rw-jpTzwukjj6");
-                                        }
-                                    }, 2000);
-                                }
+                                        getVocabularies("-NlcBn6rw-jpTzwukjj6");
+                                    }
+                                }, 2000);
+                            }
 
 
 
@@ -184,7 +184,7 @@ public class TypeWordEnglish extends AppCompatActivity {
                     });
                 }
                 else {
-                    Intent intent = new Intent(TypeWordEnglish.this, TypeWordResult.class);
+                    Intent intent = new Intent(TypeWordViet.this, TypeWordResult.class);
                     startActivity(intent);
                 }
 
@@ -220,7 +220,6 @@ public class TypeWordEnglish extends AppCompatActivity {
             }
         });
     }
-
 
     public void onInit(int status) {
         if (status == TextToSpeech.SUCCESS) {
