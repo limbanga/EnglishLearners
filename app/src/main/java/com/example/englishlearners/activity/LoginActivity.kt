@@ -16,7 +16,7 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var btnLogin: Button
     private lateinit var textViewToSignUpScreen: TextView
-    private lateinit var userNameRditText: EditText
+    private lateinit var userNameEditText: EditText
     private lateinit var passwordEditText: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,13 +24,13 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
         // map view
         btnLogin = findViewById(R.id.btn_login)
-        userNameRditText = findViewById(R.id.edit_text_email)
+        userNameEditText = findViewById(R.id.edit_text_email)
         passwordEditText = findViewById(R.id.edit_text_password)
         textViewToSignUpScreen = findViewById(R.id.to_sign_up_screen)
         // set event
         btnLogin.setOnClickListener {
             Toast.makeText(this, "Login button clicked", Toast.LENGTH_LONG).show()
-            signIn(userNameRditText.text.toString(), passwordEditText.text.toString())
+            signIn(userNameEditText.text.toString(), passwordEditText.text.toString())
         }
 
         textViewToSignUpScreen.setOnClickListener {

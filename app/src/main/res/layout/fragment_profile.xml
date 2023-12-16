@@ -35,6 +35,7 @@
         app:cardElevation="6dp">
 
         <LinearLayout
+            android:id="@+id/open_setting"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -44,7 +45,7 @@
             <ImageView
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:src="@mipmap/ic_launcher" />
+                android:src="@drawable/baseline_settings_24" />
 
             <TextView
                 android:layout_width="0dp"
@@ -90,11 +91,5 @@
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
-
-    <Button
-        android:id="@+id/logout_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Logout" />
 
 </LinearLayout>

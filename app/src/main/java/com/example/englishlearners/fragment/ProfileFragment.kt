@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -16,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.englishlearners.FirebaseService
 import com.example.englishlearners.R
+import com.example.englishlearners.activity.AccountSettingActivity
 import com.example.englishlearners.activity.LoginActivity
 import com.example.englishlearners.activity.MainActivity
 import com.example.englishlearners.model.AppUser
@@ -33,14 +35,14 @@ class ProfileFragment : Fragment() {
 
     private val CHOOSE_IMAGE_CODE = 349008
 
-    private val mAuth = FirebaseAuth.getInstance()
     private var firebaseUser: FirebaseUser? = null
     private lateinit var appUser: AppUser
     private val database = Firebase.database
 
-    private lateinit var logoutButton: Button
     private lateinit var displayNameTextView: TextView
     private lateinit var avatarImage: CircleImageView
+    private lateinit var openSetting: LinearLayout
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,20 +52,20 @@ class ProfileFragment : Fragment() {
         // get current user
         firebaseUser = MainActivity.getFireBaseUser(requireContext())
         // map view
-        logoutButton = view1.findViewById(R.id.logout_btn)
         displayNameTextView = view1.findViewById(R.id.display_name_text_view)
         avatarImage = view1.findViewById(R.id.avatar_image)
+        openSetting = view1.findViewById(R.id.open_setting)
         // set event
-        logoutButton.setOnClickListener {
-            signOut()
-        }
         avatarImage.setOnClickListener {
             // Sử dụng Intent để chọn ảnh từ thiết bị
             val intent = Intent(Intent.ACTION_PICK)
             intent.type = "image/*"
             startActivityForResult(intent, CHOOSE_IMAGE_CODE)
         }
-
+        openSetting.setOnClickListener{
+            val intent = Intent(requireContext(), AccountSettingActivity::class.java)
+            startActivity(intent)
+        }
         // init data
         loadData()
         return view1
@@ -88,13 +90,6 @@ class ProfileFragment : Fragment() {
             .load(appUser.imgPath)
             .into(avatarImage)
         displayNameTextView.text = appUser.displayName
-    }
-
-    private fun signOut() {
-        mAuth.signOut()
-        Toast.makeText(requireContext(), "Đăng xuất thành công", Toast.LENGTH_SHORT).show()
-        val intent = Intent(requireContext(), LoginActivity::class.java)
-        startActivity(intent)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -123,6 +118,4 @@ class ProfileFragment : Fragment() {
             }
         }
     }
-
-
 }
