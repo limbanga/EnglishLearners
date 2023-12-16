@@ -6,21 +6,48 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="20dp"
+    android:background="@drawable/imgstart"
     tools:context=".activity.TypeWordActivity">
 
     <TextView
+        android:layout_marginTop="30dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="44sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
         android:textAlignment="center"
-        android:text="con mèo"/>
+        android:text="Điền từ"/>
 
-    <EditText
-        android:layout_marginTop="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="asdkasjh"
-        android:textSize="44sp"
-        android:padding="5dp"/>
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_margin="10dp"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/type_word_eng"
+            android:text="Gõ từ tiếng anh"
+            android:textSize="20dp"
+            android:backgroundTint="#38D348"
+            app:cornerRadius="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"/>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_margin="10dp"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/type_word_vn"
+            android:text="Gõ từ tiếng việt"
+            android:textSize="20dp"
+            android:backgroundTint="#38D348"
+            app:cornerRadius="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"/>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
 </LinearLayout>
