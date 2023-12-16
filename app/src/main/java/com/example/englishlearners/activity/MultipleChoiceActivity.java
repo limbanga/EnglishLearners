@@ -41,8 +41,8 @@ public class MultipleChoiceActivity extends AppCompatActivity {
     public static int vocabularies_size;
     int currentIndex = 1;
     Button btn_continous;
-    ArrayList<Vocabulary> CorectWord = new ArrayList<Vocabulary>();
-    ArrayList<Vocabulary> IncorectWord = new ArrayList<Vocabulary>();
+    public static ArrayList<Vocabulary> CorectWord = new ArrayList<Vocabulary>();
+    public static ArrayList<Vocabulary> IncorectWord = new ArrayList<Vocabulary>();
     private final Handler autoTransferHandler = new Handler();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -224,8 +224,9 @@ public class MultipleChoiceActivity extends AppCompatActivity {
                             Rl_answerB.setEnabled(false);
                             Rl_answerC.setEnabled(false);
                             tv_score = findViewById(R.id.score);
-                            tv_score.setText("Điểm: "+score);
+                           CorectWord.add(correctAnswer);
                             score++;
+                            tv_score.setText("Điểm: "+score);
                         }
                         else {
                             showToast("Sai");

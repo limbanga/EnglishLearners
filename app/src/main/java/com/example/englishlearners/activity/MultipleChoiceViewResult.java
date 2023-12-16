@@ -2,7 +2,10 @@ package com.example.englishlearners.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.englishlearners.R;
@@ -10,6 +13,7 @@ import com.example.englishlearners.R;
 public class MultipleChoiceViewResult extends AppCompatActivity {
     TextView tv_score;
     TextView tv_fb;
+    Button btn_viewDetail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +24,7 @@ public class MultipleChoiceViewResult extends AppCompatActivity {
         int score = MultipleChoiceActivity.score;
         int size = MultipleChoiceActivity.vocabularies_size;
         float per= (float)score/size;
+        btn_viewDetail =  findViewById(R.id.continous);
         if(per < 0.2){
             tv_fb.setText("Số câu trả lời đúng của bạn chỉ đạt "+(per*100)+"% ở mức rất thấp bạn cần học nhiều hơn để cải thiện điểm số" );
         } else if (per < 0.5) {
@@ -33,6 +38,12 @@ public class MultipleChoiceViewResult extends AppCompatActivity {
             tv_fb.setText("Số câu trả lời đúng của bạn chỉ đạt "+(per*100)+"% ở mức tốt bạn cần chút ít thời gian để hoàn thành" );
         }
         tv_score.setText("Điểm: "+score+"/"+size);
-
+        btn_viewDetail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MultipleChoiceViewResult.this, MultipleChoiceListVocabulary.class);
+                startActivity(intent);
+            }
+        });
     }
 }
