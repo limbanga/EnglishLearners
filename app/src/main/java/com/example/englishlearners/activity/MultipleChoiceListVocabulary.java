@@ -64,9 +64,10 @@ public class MultipleChoiceListVocabulary extends AppCompatActivity {
         iv_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                MultipleChoiceActivity.CorectWord.clear();
+                MultipleChoiceActivity.IncorectWord.clear();
                 Intent intent = new Intent(MultipleChoiceListVocabulary.this, MainActivity.class);
                 startActivity(intent);
-
             }
         });
 

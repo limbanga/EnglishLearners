@@ -15,10 +15,10 @@
         android:theme="@style/Theme.EnglishLearners"
         tools:targetApi="31">
         <activity
-            android:name=".activity.ForgotPasswordActivity"
+            android:name=".activity.FlashCardStart"
             android:exported="false" />
         <activity
-            android:name=".activity.ChangePasswordActivity"
+            android:name=".activity.MultipleChoiceStart"
             android:exported="false" />
         <activity
             android:name=".activity.TypeWordListVocabularyViet"

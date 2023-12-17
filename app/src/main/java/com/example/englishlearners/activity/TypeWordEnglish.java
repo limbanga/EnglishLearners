@@ -40,6 +40,7 @@ public class TypeWordEnglish extends AppCompatActivity {
     ImageView iv_back;
     ImageView iv_shuffle;
     private TextToSpeech textToSpeech;
+    String topicID;
     public static ArrayList<Vocabulary> CorectWord = new ArrayList<Vocabulary>();
     public static ArrayList<Vocabulary> IncorectWord = new ArrayList<Vocabulary>();
 
@@ -47,7 +48,9 @@ public class TypeWordEnglish extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_type_word_english);
-        getVocabularies("-NlcBn6rw-jpTzwukjj6");
+        Intent intent = getIntent() ;
+        topicID = intent.getStringExtra("KEY_TOPIC_ID2");
+        getVocabularies(topicID);
         back();
     }
     private void back(){
@@ -115,6 +118,7 @@ public class TypeWordEnglish extends AppCompatActivity {
                         tv_score = findViewById(R.id.score);
                         edt_answer = findViewById(R.id.edt_answer);
                         tv_curentState = findViewById(R.id.currentState);
+                        tv_score.setText("Điểm: "+score);
                         tv_curentState.setText((currentIndex+1)+"/"+vocabularies.size());
                     }
                 });
@@ -152,7 +156,7 @@ public class TypeWordEnglish extends AppCompatActivity {
                                             tv_score.setText("Điểm: "+score);
                                             tv_curentState.setText((currentIndex+1)+"/"+vocabularies.size());
 
-                                            getVocabularies("-NlcBn6rw-jpTzwukjj6");
+                                            getVocabularies(topicId);
                                         }
                                     }, 2000);
                                 }
@@ -175,7 +179,7 @@ public class TypeWordEnglish extends AppCompatActivity {
                                             tv_score.setText("Điểm: "+score);
                                             tv_curentState.setText((currentIndex+1)+"/"+vocabularies.size());
 
-                                            getVocabularies("-NlcBn6rw-jpTzwukjj6");
+                                            getVocabularies(topicId);
                                         }
                                     }, 2000);
                                 }

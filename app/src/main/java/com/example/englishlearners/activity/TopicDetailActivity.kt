@@ -78,17 +78,20 @@ class TopicDetailActivity : AppCompatActivity() {
 
         // set event
         flashCard.setOnClickListener {
-            val intent = Intent(this, FlashCardActivity::class.java)
+            val intent = Intent(this, FlashCardStart::class.java)
+            intent.putExtra(KEY_TOPIC_ID, topicId)
             startActivity(intent)
         }
 
         multipleChoice.setOnClickListener {
-            val intent = Intent(this, MultipleChoiceActivity::class.java)
+            val intent = Intent(this, MultipleChoiceStart::class.java)
+            intent.putExtra(KEY_TOPIC_ID, topicId)
             startActivity(intent)
         }
 
         typeWord.setOnClickListener {
             val intent = Intent(this, TypeWordActivity::class.java)
+            intent.putExtra(KEY_TOPIC_ID, topicId)
             startActivity(intent)
         }
 

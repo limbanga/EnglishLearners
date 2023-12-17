@@ -48,6 +48,8 @@ public class FlashCardActivity extends AppCompatActivity {
     private int size;
     private int langugeStatus=0;
     TextView txt_status;
+    ImageView iv_back;
+    public static String topicID;
     private final Handler autoTransferHandler = new Handler();
     private   ArrayList<Vocabulary>word = new ArrayList<>();
 
@@ -55,8 +57,21 @@ public class FlashCardActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_flash_card);
+        Intent intent = getIntent() ;
+        topicID = intent.getStringExtra("KEY_TOPIC_ID2");
         swapLanguge();
         previousAndNextCard();
+        back();
+    }
+    private void back(){
+        iv_back = findViewById(R.id.iv_back);
+        iv_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent back = new Intent(FlashCardActivity.this, MainActivity.class);
+                startActivity(back);
+            }
+        });
     }
     private void swapLanguge(){
        iv_swap_language = findViewById(R.id.imv_swap_language);
@@ -146,7 +161,7 @@ public class FlashCardActivity extends AppCompatActivity {
                     if (viewFlipper.getDisplayedChild() == 0) {
                         viewFlipper.showNext();
                         Speech(definition);
-                        SpeechAutomatical(definition);
+                        //SpeechAutomatical(definition);
                     } else {
 
                         viewFlipper.showPrevious();
@@ -161,8 +176,8 @@ public class FlashCardActivity extends AppCompatActivity {
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("vocabularies");
 
         // Query the data based on the "topicId"
-        //myRef.orderByChild("topicId").equalTo(topicId).addListenerForSingleValueEvent(new ValueEventListener() {
-        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        myRef.orderByChild("topicId").equalTo(topicID).addListenerForSingleValueEvent(new ValueEventListener() {
+        //myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 ArrayList<Vocabulary>    vocabularies = new ArrayList<>();

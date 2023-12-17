@@ -40,6 +40,7 @@ public class TypeWordViet extends AppCompatActivity {
     ImageView iv_back;
     ImageView iv_shuffle;
     private TextToSpeech textToSpeech;
+    String topicID;
     public static ArrayList<Vocabulary> CorectWord = new ArrayList<Vocabulary>();
     public static ArrayList<Vocabulary> IncorectWord = new ArrayList<Vocabulary>();
 
@@ -47,7 +48,9 @@ public class TypeWordViet extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_type_word_english);
-        getVocabularies("-NlcBn6rw-jpTzwukjj6");
+        Intent intent = getIntent() ;
+        topicID = intent.getStringExtra("KEY_TOPIC_ID2");
+        getVocabularies(topicID);
         back();
     }
     private void back(){
@@ -55,7 +58,8 @@ public class TypeWordViet extends AppCompatActivity {
         iv_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(TypeWordViet.this, TypeWordActivity.class);
+                Intent intent = new Intent(TypeWordViet.this, MainActivity.class);
+
                 startActivity(intent);
                 score = 0;
             }
@@ -191,9 +195,6 @@ public class TypeWordViet extends AppCompatActivity {
                     Intent intent = new Intent(TypeWordViet.this, TypeWordResultViet.class);
                     startActivity(intent);
                 }
-
-
-
 
             }
             @Override

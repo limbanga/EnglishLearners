@@ -23,6 +23,7 @@ public class TypeWordResultViet extends AppCompatActivity {
         btn_exit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 Intent intent = new Intent(TypeWordResultViet.this, TypeWordListVocabularyViet.class);
                 startActivity(intent);
             }

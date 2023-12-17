@@ -64,6 +64,8 @@ public class TypeWordListVocabularyViet extends AppCompatActivity {
         iv_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                TypeWordViet.CorectWord.clear();
+                TypeWordViet.IncorectWord.clear();
                 Intent intent = new Intent(TypeWordListVocabularyViet.this, MainActivity.class);
                 startActivity(intent);
 

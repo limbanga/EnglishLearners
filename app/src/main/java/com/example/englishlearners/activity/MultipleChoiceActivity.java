@@ -41,6 +41,7 @@ public class MultipleChoiceActivity extends AppCompatActivity {
     public static int vocabularies_size;
     int currentIndex = 1;
     Button btn_continous;
+    String topicID;
     public static ArrayList<Vocabulary> CorectWord = new ArrayList<Vocabulary>();
     public static ArrayList<Vocabulary> IncorectWord = new ArrayList<Vocabulary>();
     private final Handler autoTransferHandler = new Handler();
@@ -48,6 +49,9 @@ public class MultipleChoiceActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_multiple_choice);
+        Intent intent = getIntent() ;
+        topicID = intent.getStringExtra("KEY_TOPIC_ID2");
+        showToast(topicID);
         moveOnQuestion();
         back();
     }
@@ -59,6 +63,8 @@ public class MultipleChoiceActivity extends AppCompatActivity {
                 Intent intent = new Intent(MultipleChoiceActivity.this, MainActivity.class);
                 startActivity(intent);
                 score = 0;
+                CorectWord.clear();
+                IncorectWord.clear();
             }
         });
 
@@ -67,8 +73,8 @@ public class MultipleChoiceActivity extends AppCompatActivity {
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("vocabularies");
 
         // Query the data based on the "topicId"
-        // myRef.orderByChild("topicId").equalTo(topicId).addListenerForSingleValueEvent(new ValueEventListener() {
-        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        myRef.orderByChild("topicId").equalTo(topicID).addListenerForSingleValueEvent(new ValueEventListener() {
+        //myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 ArrayList<Vocabulary> allVocabularies = new ArrayList<>();
@@ -280,8 +286,8 @@ public class MultipleChoiceActivity extends AppCompatActivity {
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("vocabularies");
 
         // Query the data based on the "topicId"
-        //myRef.orderByChild("topicId").equalTo(topicId).addListenerForSingleValueEvent(new ValueEventListener() {
-        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        myRef.orderByChild("topicId").equalTo(topicID).addListenerForSingleValueEvent(new ValueEventListener() {
+       //myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 ArrayList<Vocabulary> vocabularies = new ArrayList<>();
@@ -315,9 +321,6 @@ public class MultipleChoiceActivity extends AppCompatActivity {
                             Intent intent = new Intent(MultipleChoiceActivity.this, MultipleChoiceViewResult.class);
                             startActivity(intent);
                         }
-
-
-
                     }
                 });
 

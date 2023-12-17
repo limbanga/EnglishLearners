@@ -23,10 +23,11 @@ public class TypeWordResult extends AppCompatActivity {
         btn_exit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 Intent intent = new Intent(TypeWordResult.this, TypeWordListVocabularyEng.class);
                 startActivity(intent);
+
             }
         });
-
     }
 }
