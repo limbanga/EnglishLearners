@@ -31,11 +31,9 @@ class LoginActivity : AppCompatActivity() {
         openForgetPassword = findViewById(R.id.txt_forgot_pass)
         // set event
         btnLogin.setOnClickListener {
-            Toast.makeText(this, "Login button clicked", Toast.LENGTH_LONG).show()
             signIn(userNameEditText.text.toString(), passwordEditText.text.toString())
         }
         textViewToSignUpScreen.setOnClickListener {
-            Toast.makeText(this, "to sign up clicked", Toast.LENGTH_LONG).show()
             val intent = Intent(this@LoginActivity, SignUpActivity::class.java)
             startActivity(intent)
             finish()

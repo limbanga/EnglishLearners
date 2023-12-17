@@ -84,6 +84,7 @@ class TopicDetailActivity : AppCompatActivity() {
         }
 
         multipleChoice.setOnClickListener {
+
             val intent = Intent(this, MultipleChoiceStart::class.java)
             intent.putExtra(KEY_TOPIC_ID, topicId)
             startActivity(intent)
