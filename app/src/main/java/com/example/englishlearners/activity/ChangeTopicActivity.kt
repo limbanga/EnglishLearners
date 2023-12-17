@@ -2,10 +2,13 @@ package com.example.englishlearners.activity
 
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.englishlearners.FirebaseService
@@ -13,7 +16,12 @@ import com.example.englishlearners.R
 import com.example.englishlearners.model.Topic
 import com.example.englishlearners.model.Vocabulary
 import com.google.firebase.auth.FirebaseUser
+import com.opencsv.CSVWriter
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileWriter
+import java.io.IOException
+
 
 class ChangeTopicActivity : AppCompatActivity() {
 
@@ -38,8 +46,7 @@ class ChangeTopicActivity : AppCompatActivity() {
     private lateinit var descEditText: EditText
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     private lateinit var isPublicSwitch: Switch
-
-
+    private lateinit var Btn_export: Button
     @SuppressLint("InflateParams")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -173,7 +180,9 @@ class ChangeTopicActivity : AppCompatActivity() {
             addDescButton.visibility = View.GONE
             descEditText.visibility = View.VISIBLE
         }
+        exportfileCSV();
     }
+
 
     override fun onResume() {
         Toast.makeText(this, "onResume", Toast.LENGTH_SHORT).show()
@@ -264,7 +273,52 @@ class ChangeTopicActivity : AppCompatActivity() {
         // add to ui
         linearLayout.addView(view)
     }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    private  fun exportfileCSV(){
+        Btn_export = findViewById(R.id.btn_export);
+        Btn_export.setOnClickListener {
+            exportToCsv();
+        }
+    }
+    @RequiresApi(api = Build.VERSION_CODES.R)
+    fun exportToCsv() {
+        val folderName = "Vocabulary"
+        val fileName = "file.csv"
+        val appDirectory = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+            folderName
+        )
+        if (!appDirectory.exists()) {
+            appDirectory.mkdirs()
+        }
+        Toast.makeText(this, "Export successfully", Toast.LENGTH_SHORT).show()
+        val filePath = appDirectory.path + "/" + fileName
+        val vocabulary: MutableList<Vocabulary?> = java.util.ArrayList<Vocabulary?>()
+        try {
+            CSVWriter(FileWriter(File(filePath))).use { writer ->
+                // Header
+                val header =
+                    arrayOf("Thuật ngữ", "Nghĩa")
+                writer.writeNext(header)
+
+                // Data
+                for (student in list) {
+                    val data = arrayOf<String>(
+                        student.term,
+                        student.definition
+                    )
+                    writer.writeNext(data)
+                }
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
 }
+
+
+
 
 
 
