@@ -84,6 +84,7 @@ class TopicDetailActivity : AppCompatActivity() {
 
         multipleChoice.setOnClickListener {
             val intent = Intent(this, MultipleChoiceActivity::class.java)
+
             startActivity(intent)
         }
 
